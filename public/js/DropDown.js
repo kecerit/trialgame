@@ -70,12 +70,22 @@
          */
         this.onChange = null;
 
+
+        /**
+         * ###  DropDown.shuffleChoices
+         *
+         * If TRUE, choices are shuffled.
+         */
+        this.shuffleChoices = null;
+
    }
 
 
     DropDown.prototype.init = function(options) {
        // Init widget variables, but do not create
        // HTML elements, they should be created in append.
+
+       var tmp;
 
         if (!this.id) {
             throw new TypeError('DropDown.init: options.id is missing');
@@ -126,6 +136,11 @@
                                 options.onChange);
         }
 
+        // Option shuffleChoices, default false.
+        if ('undefined' === typeof options.shuffleChoices) tmp = false;
+        else tmp = !!options.shuffleChoices;
+        this.shuffleChoices = tmp;
+
 
     }
 
@@ -149,6 +164,7 @@
           var label = this.label;
           var tag = this.tag;
           var option = this.option;
+          var choices = this.choices;
           var p = this.p;
 
           text = document.createElement('p');
@@ -158,6 +174,8 @@
           label = document.createElement('label');
           label.innerHTML = this.labelText
           this.bodyDiv.appendChild(label);
+
+        if (this.shuffleChoices) choices = shuffle(choices);
 
         if (tag === "Datalist" || "undefined" === typeof tag) {
 
@@ -185,16 +203,16 @@
 
           this.bodyDiv.appendChild(select);
 
-          this.choices.unshift(" ");
+          choices.unshift(" ");
         }
 
-        let len = this.choices.length;
+        let len = choices.length;
 
         for (let i = 0; i < len; i++) {
 
           option = document.createElement('option');
-          option.value = this.choices[i];
-          option.innerHTML = this.choices[i];
+          option.value = choices[i];
+          option.innerHTML = choices[i];
 
           if (tag === "Datalist" || "undefined" === typeof tag) {
           datalist.appendChild(option);
@@ -211,6 +229,21 @@
 
 
     };
+
+
+    /**
+   * ### shuffle
+   *
+   * Shuffles the choice array.
+   *
+   * @param {choices}  array of choices
+   *
+   * @return {choices} new array of choices
+   */
+
+   function shuffle(choicesArray) {
+   return choicesArray.sort(() => J.random() - 0.5);
+   }
 
 
 
