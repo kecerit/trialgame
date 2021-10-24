@@ -153,7 +153,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('City').value;
                 W.setInnerHTML('Cityp', "You are currtently living in " + x +".")
                },
-               tagOption: "Select"
+               tag: "Select"
                },
                done: function(values) {
                    node.game.City = values.forms.City.value;
@@ -178,7 +178,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('Travel').value;
                 W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
                 },
-               tagOption: "Datalist"
+               tag: "Datalist"
                },
                done: function(values) {
                    node.game.Travel = values.forms.Travel.value;

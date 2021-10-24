@@ -57,11 +57,11 @@
         this.choices = null;
 
         /**
-         * ### DropDown.tagOption
+         * ### DropDown.tag
          *
          * HTML tag options. Either "Datalist" or "Select".
          */
-        this.tagOption = null;
+        this.tag = null;
 
         /**
          * ### DropDown.onChange
@@ -105,15 +105,15 @@
             this.choices = options.choices;
         }
 
-        if ( "undefined" === typeof options.tagOption ||
-        "Datalist" === options.tagOption ||
-        "Select" === options.tagOption) {
-            this.tagOption = options.tagOption;
+        if ( "undefined" === typeof options.tag ||
+        "Datalist" === options.tag ||
+        "Select" === options.tag) {
+            this.tag = options.tag;
         }
         else {
-            throw new TypeError('DropDown.init: options.tagOption must ' +
+            throw new TypeError('DropDown.init: options.tag must ' +
                                 'be "Datalist" or "Select". Found: ' +
-                                options.tagOption);
+                                options.tag);
         }
 
         // Set an additional onchange, if any.
@@ -147,6 +147,7 @@
         }
           var text = this.text;
           var label = this.label;
+          var tag = this.tag;
           var option = this.option;
           var p = this.p;
 
@@ -158,7 +159,7 @@
           label.innerHTML = this.labelText
           this.bodyDiv.appendChild(label);
 
-        if (this.tagOption === "Datalist" || "undefined" === typeof this.tagOption) {
+        if (tag === "Datalist" || "undefined" === typeof tag) {
 
           var datalist = this.datalist;
           var input = this.input;
@@ -172,8 +173,9 @@
           input.onchange = this.onChange;
           this.bodyDiv.appendChild(input);
           this.bodyDiv.appendChild(datalist);
+
         }
-        else if (this.tagOption === "Select") {
+        else if (tag === "Select") {
 
           var select = this.select;
 
@@ -193,10 +195,11 @@
           option = document.createElement('option');
           option.value = this.choices[i];
           option.innerHTML = this.choices[i];
-          if (this.tagOption === "Datalist" || "undefined" === typeof this.tagOption) {
+
+          if (tag === "Datalist" || "undefined" === typeof tag) {
           datalist.appendChild(option);
           }
-          else if (this.tagOption === "Select") {
+          else if (tag === "Select") {
           select.appendChild(option);
           }
         }
