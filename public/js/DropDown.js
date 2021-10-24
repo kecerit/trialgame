@@ -145,59 +145,66 @@
             throw new Error('DropDown.append: id is not ' +
                             'unique: ' + this.id);
         }
-          this.text = document.createElement('p');
-          this.text.innerHTML = this.mainText;
-          this.bodyDiv.appendChild(this.text);
+          var text = this.text;
+          var label = this.label;
+          var option = this.option;
+          var p = this.p;
 
+          text = document.createElement('p');
+          text.innerHTML = this.mainText;
+          this.bodyDiv.appendChild(text);
 
-          this.label = document.createElement('label');
-          this.label.innerHTML = this.labelText
-          this.bodyDiv.appendChild(this.label);
+          label = document.createElement('label');
+          label.innerHTML = this.labelText
+          this.bodyDiv.appendChild(label);
 
         if (this.tagOption === "Datalist" || "undefined" === typeof this.tagOption) {
-          this.datalist = document.createElement('datalist');
-          this.datalist.id = "dropdown"
 
+          var datalist = this.datalist;
+          var input = this.input;
 
-          this.input = document.createElement('input');
-          this.input.setAttribute('list', this.datalist.id);
-          this.input.id = this.id;
-          this.input.onchange = this.onChange;
-          this.bodyDiv.appendChild(this.input);
-          this.bodyDiv.appendChild(this.datalist);
+          datalist = document.createElement('datalist');
+          datalist.id = "dropdown"
 
-          let len = this.choices.length
-
-          for (let i = 0; i < len; i++) {
-
-            this.option = document.createElement('option');
-            this.option.value = this.choices[i];
-            this.datalist.appendChild(this.option);
-          }
+          input = document.createElement('input');
+          input.setAttribute('list', datalist.id);
+          input.id = this.id;
+          input.onchange = this.onChange;
+          this.bodyDiv.appendChild(input);
+          this.bodyDiv.appendChild(datalist);
         }
         else if (this.tagOption === "Select") {
 
-          this.select = document.createElement('select');
-          this.select.id = this.id;
-          this.select.onchange = this.onChange;
+          var select = this.select;
 
-          this.bodyDiv.appendChild(this.select);
+          select = document.createElement('select');
+          select.id = this.id;
+          select.onchange = this.onChange;
+
+          this.bodyDiv.appendChild(select);
 
           this.choices.unshift(" ");
-          let len = this.choices.length
+        }
 
-          for (let i = 0; i < len; i++) {
+        let len = this.choices.length;
 
-            this.option = document.createElement('option');
-            this.option.value = this.choices[i];
-            this.option.innerHTML = this.choices[i];
-            this.select.appendChild(this.option);
+        for (let i = 0; i < len; i++) {
+
+          option = document.createElement('option');
+          option.value = this.choices[i];
+          option.innerHTML = this.choices[i];
+          if (this.tagOption === "Datalist" || "undefined" === typeof this.tagOption) {
+          datalist.appendChild(option);
+          }
+          else if (this.tagOption === "Select") {
+          select.appendChild(option);
           }
         }
 
-        this.p = document.createElement('p');
-        this.p.id = this.id + "p";
-        this.bodyDiv.appendChild(this.p);
+
+        p = document.createElement('p');
+        p.id = this.id + "p";
+        this.bodyDiv.appendChild(p);
 
 
     };
