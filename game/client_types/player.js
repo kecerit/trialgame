@@ -10,7 +10,7 @@
  * http://www.nodegame.org
  * ---
  */
- 
+
 "use strict";
 
 const ngc = require('nodegame-client');
@@ -127,7 +127,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('State').value;
                 W.setInnerHTML('Statep', "You are currtently living in " + x +".");
               },
-              shuffleChoices: true
+              shuffleChoices: true,
+              placeHolder: "Choose a state"
                },
                done: function(values) {
                    node.game.State = values.forms.State.value;
@@ -155,7 +156,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('Cityp', "You are currtently living in " + x +".")
                },
                tag: "Select",
-               shuffleChoices: true
+               shuffleChoices: true,
+               placeHolder: "Choose a city"
                },
                done: function(values) {
                    node.game.City = values.forms.City.value;

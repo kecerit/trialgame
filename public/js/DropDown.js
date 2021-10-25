@@ -1,5 +1,4 @@
 
-
 (function(node) {  // Self-executing function for encapsulation.
 
     // Register the widget in the widgets collection
@@ -48,6 +47,13 @@
          * A label text for the input.
          */
         this.labelText = null;
+
+        /**
+         * ### DropDown.placeHolder.
+         *
+         * A placeHolder text for the input.
+         */
+        this.placeHolder = null;
 
         /**
          * ### DropDown.choices
@@ -110,6 +116,16 @@
                                 options.labelText);
         }
 
+        // Set the placeHolder text, if any.
+         if ('string' === typeof options.placeHolder) {
+             this.placeHolder = options.placeHolder;
+         }
+         else if ('undefined' !== typeof options.placeHolder) {
+             throw new TypeError('DropDown.init: options.placeHolder must ' +
+                                 'be string or undefined. Found: ' +
+                                 options.placeHolder);
+         }
+
         // Add the choices.
         if ('undefined' !== typeof options.choices) {
             this.choices = options.choices;
@@ -165,6 +181,7 @@
           var tag = this.tag;
           var option = this.option;
           var choices = this.choices;
+          var placeHolder = this.placeHolder;
           var p = this.p;
 
           text = document.createElement('p');
@@ -189,6 +206,7 @@
           input.setAttribute('list', datalist.id);
           input.id = this.id;
           input.onchange = this.onChange;
+          if (placeHolder) { input.placeholder = placeHolder;}
           this.bodyDiv.appendChild(input);
           this.bodyDiv.appendChild(datalist);
 
@@ -200,10 +218,17 @@
           select = document.createElement('select');
           select.id = this.id;
           select.onchange = this.onChange;
+          if (placeHolder) {
+          option = document.createElement('option');
+          option.value = "";
+          option.innerHTML = placeHolder;
+          option.setAttribute("disabled","");
+          option.setAttribute("selected","");
+          option.setAttribute("hidden","");
+          select.appendChild(option);
+          }
 
           this.bodyDiv.appendChild(select);
-
-          choices.unshift(" ");
         }
 
         let len = choices.length;
