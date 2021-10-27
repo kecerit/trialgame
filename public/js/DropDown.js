@@ -71,11 +71,86 @@
         this.tag = null;
 
         /**
+         * ### DropDown.listener
+         *
+         * The main function listening on changes
+         *addEventListener
+         * @see DropDown.onchange
+         */
+
+         var that;
+         that = this;
+
+         this.listener = function(e) {
+             var  menu;
+
+             e = e || window.event;
+             menu = e.target || e.srcElement;
+
+             this.currentChoice = menu.value;
+             // Relative time.
+             if ('string' === typeof that.timeFrom) {
+                 that.timeCurrentChoice = node.timer.getTimeSince(that.timeFrom);
+             }
+             // Absolute time.
+             else {
+                 that.timeCurrentChoice = Date.now ?
+                     Date.now() : new Date().getTime();
+             }
+
+             // One more change.
+             that.numberOfChanges++;
+
+             // Call onclick, if any.
+            if (that.onChange) {
+
+                that.onChange.call();
+            }
+
+         };
+
+        /**
          * ### DropDown.onChange
          *
          * User defined onchange function.
          */
         this.onChange = null;
+
+        /**
+         * ### DropDown.timeCurrentChoice
+         *
+         * Time when the last choice was made
+         */
+        this.timeCurrentChoice = null;
+
+        /**
+         * ### DropDown.timeFrom
+         *
+         * Time is measured from timestamp as saved by node.timer
+         *
+         * Default event is a new step is loaded (user can interact with
+         * the screen). Set it to FALSE, to have absolute time.
+         *
+         * @see node.timer.getTimeSince
+         */
+        this.timeFrom = 'step';
+
+        /**
+         * ### DropDown.numberOfChanges
+         *
+         * Total number of changes between different choices
+         */
+        this.numberOfChanges = 0;
+
+
+        /**
+         * ### DropDown.currentChoice
+         *
+         * Choice associated with currently selected cell/s
+         *
+         * The field is a  number.
+         */
+        this.currentChoice = null;
 
 
         /**
@@ -213,7 +288,7 @@
           input = document.createElement('input');
           input.setAttribute('list', datalist.id);
           input.id = this.id;
-          input.onchange = this.onChange;
+          input.onchange = this.listener;
           if (placeHolder) { input.placeholder = placeHolder;}
           this.bodyDiv.appendChild(input);
           this.bodyDiv.appendChild(datalist);
@@ -225,7 +300,7 @@
 
           select = document.createElement('select');
           select.id = this.id;
-          select.onchange = this.onChange;
+          select.onchange = this.listener;
           if (placeHolder) {
           option = document.createElement('option');
           option.value = "";
@@ -262,7 +337,11 @@
         this.bodyDiv.appendChild(p);
 
 
+
     };
+
+
+
 
 
 
