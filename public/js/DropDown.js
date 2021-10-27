@@ -1,4 +1,5 @@
 
+
 (function(node) {  // Self-executing function for encapsulation.
 
     // Register the widget in the widgets collection
@@ -83,6 +84,14 @@
          * If TRUE, choices are shuffled.
          */
         this.shuffleChoices = null;
+
+        /**
+         * ### DropDown.order
+         *
+         * The current order of display of choices
+         *
+         */
+        this.order = null;
 
    }
 
@@ -182,6 +191,7 @@
           var option = this.option;
           var choices = this.choices;
           var placeHolder = this.placeHolder;
+          var order = this.order;
           var p = this.p;
 
           text = document.createElement('p');
@@ -191,8 +201,6 @@
           label = document.createElement('label');
           label.innerHTML = this.labelText
           this.bodyDiv.appendChild(label);
-
-        if (this.shuffleChoices) choices = shuffle(choices);
 
         if (tag === "Datalist" || "undefined" === typeof tag) {
 
@@ -232,12 +240,14 @@
         }
 
         let len = choices.length;
+        order = J.seq(0, len-1);
+        if (this.shuffleChoices) order = J.shuffle(order);
 
         for (let i = 0; i < len; i++) {
 
           option = document.createElement('option');
-          option.value = choices[i];
-          option.innerHTML = choices[i];
+          option.value = choices[order[i]];
+          option.innerHTML = choices[order[i]];
 
           if (tag === "Datalist" || "undefined" === typeof tag) {
           datalist.appendChild(option);
@@ -247,28 +257,12 @@
           }
         }
 
-
         p = document.createElement('p');
         p.id = this.id + "p";
         this.bodyDiv.appendChild(p);
 
 
     };
-
-
-    /**
-   * ### shuffle
-   *
-   * Shuffles the choice array.
-   *
-   * @param {choices}  array of choices
-   *
-   * @return {choices} new array of choices
-   */
-
-   function shuffle(choicesArray) {
-   return choicesArray.sort(() => J.random() - 0.5);
-   }
 
 
 
