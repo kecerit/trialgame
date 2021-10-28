@@ -89,6 +89,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         correctChoice: 0
                       },
                       {
+                       name: 'DropDown',
+                       id: 'State',
+                       mainText: "Please fill in the sentence below.",
+                       labelText: 'I am currently living in:  ',
+                       choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
+                                   "Hesse"],
+                       onChange: function () {
+                       var x = W.getElementById('State').value;
+                       W.setInnerHTML('Statep', "You are currtently living in " + x +".");
+                     },
+                       shuffleChoices: true,
+                       placeHolder: "Choose a State",
+                       requiredChoice: true,
+                       fixedChoice: true,
+
+                     },
+                      {
                         name: 'ChoiceTable',
                         id: 'coins',
                         mainText: 'How many coins can you win in each round?',
@@ -127,8 +144,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('State').value;
                 W.setInnerHTML('Statep', "You are currtently living in " + x +".");
               },
-              shuffleChoices: true,
-              placeHolder: "Choose a state"
+                shuffleChoices: true,
+                placeHolder: "Choose a state",
+                requiredChoice: true,
+                width: "300px"
                },
                done: function(values) {
                    node.game.State = values.forms.State.value;
@@ -157,7 +176,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                },
                tag: "Select",
                shuffleChoices: true,
-               placeHolder: "Choose a city"
+               placeHolder: "Choose a city",
+               correctChoice: [0,3]
                },
                done: function(values) {
                    node.game.City = values.forms.City.value;
@@ -182,7 +202,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('Travel').value;
                 W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
                 },
-               tag: "Datalist"
+               tag: "Datalist",
+               correctChoice: 0
                },
                done: function(values) {
                    node.game.Travel = values.forms.Travel.value;
