@@ -13,6 +13,10 @@
 
     DropDown.texts = {
         // Texts here (more info on this later).
+        error: function() {
+
+            return 'There is something wrong.';
+        }
     };
 
     DropDown.sounds = {
@@ -71,6 +75,14 @@
         this.tag = null;
 
         /**
+         * ### DropDown.menu
+         *
+         * Main HTML tag depend on the value of DropDown.tag
+         */
+
+        this.menu = null;
+
+        /**
          * ### DropDown.listener
          *
          * The main function listening on changes
@@ -87,7 +99,7 @@
              e = e || window.event;
              menu = e.target || e.srcElement;
 
-             this.currentChoice = menu.value;
+             that.currentChoice = menu.value;
              // Relative time.
              if ('string' === typeof that.timeFrom) {
                  that.timeCurrentChoice = node.timer.getTimeSince(that.timeFrom);
@@ -101,11 +113,14 @@
              // One more change.
              that.numberOfChanges++;
 
+             // Remove any warning/errors on change.
+             if (that.isHighlighted()) that.unhighlight();
+
              // Call onclick, if any.
-            if (that.onChange) {
+             if (that.onChange) {
 
                 that.onChange.call();
-            }
+             }
 
          };
 
@@ -167,6 +182,14 @@
          *
          */
         this.order = null;
+
+        /**
+         * ### DropDown.errorBox
+         *
+         * An HTML element displayed when a validation error occurs
+         */
+        this.errorBox = null;
+
 
    }
 
@@ -292,6 +315,7 @@
           if (placeHolder) { input.placeholder = placeHolder;}
           this.bodyDiv.appendChild(input);
           this.bodyDiv.appendChild(datalist);
+          this.menu = input;
 
         }
         else if (tag === "Select") {
@@ -312,6 +336,7 @@
           }
 
           this.bodyDiv.appendChild(select);
+          this.menu = select;
         }
 
         let len = choices.length;
@@ -332,12 +357,68 @@
           }
         }
 
+        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
+
         p = document.createElement('p');
         p.id = this.id + "p";
         this.bodyDiv.appendChild(p);
 
 
 
+    };
+
+    /**
+     * ### ChoiceTable.setError
+     *
+     * Set the error msg inside the errorBox.
+     *
+     * @param {string} The error msg (can contain HTML)
+     *
+     * @see DropDown.errorBox
+     */
+    DropDown.prototype.setError = function(err) {
+        // TODO: the errorBox is added only if .append() is called.
+        // However, ChoiceTableGroup use the table without calling .append().
+        if (this.errorBox) this.errorBox.innerHTML = err || '';
+        if (err) this.highlight();
+        else this.unhighlight();
+    };
+
+    /**
+     * ### DropDown.highlight
+     *
+     * Highlights the input.
+     *
+     * @param {string} The style for the table's border.
+     *   Default '3px solid red'
+     *
+     * @see DropDown.highlighted
+     */
+    DropDown.prototype.highlight = function(border) {
+        if (border && 'string' !== typeof border) {
+            throw new TypeError('DropDown.highlight: border must be ' +
+                                'string or undefined. Found: ' + border);
+        }
+        if (this.highlighted) return;
+        this.menu.style.border = border || '3px solid red';
+        this.highlighted = true;
+        this.emit('highlighted', border);
+    };
+
+    /**
+     * ### DropDown.unhighlight
+     *
+     * Removes highlight.
+     *
+     * @see DropDown.highlighted
+     */
+    DropDown.prototype.unhighlight = function() {
+
+        if (this.highlighted !== true) return;
+        this.menu.style.border = '';
+        this.highlighted = false;
+        this.setError();
+        this.emit('unhighlighted');
     };
 
 
