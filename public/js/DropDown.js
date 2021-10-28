@@ -124,7 +124,7 @@
 
          };
 
-        /**
+        /*
          * ### DropDown.onChange
          *
          * User defined onchange function.
@@ -277,6 +277,11 @@
             if (this.requiredChoice) {
                 throw new Error('DropDown.init: cannot specify both ' +
                                 'options requiredChoice and correctChoice');
+            }
+            if (J.isArray(options.correctChoice) &&
+            options.correctChoice.length > options.choices.length) {
+                throw new Error('DropDown.init: options.correctChoice ' +
+                              'length cannot exceed options.choices length');
             }
             else {
               this.correctChoice = options.correctChoice;
@@ -435,6 +440,52 @@
 
 
 
+    };
+
+    /**
+     * ### DropDown.verifyChoice
+     *
+     * Compares the current choice/s with the correct one/s
+     *
+     * Depending on current settings, there are three modes of verifying
+     * choices:
+     *
+     *    - requiredChoice: either true or false.
+     *    - correctChoice:  the choices are compared against correct ones.
+     *    - fixedChoice: compares the choice with given choices.
+     *
+     * @return {boolean|null} TRUE if current choice is correct,
+     *   FALSE if it is not correct, or NULL if no correct choice
+     *   was set
+     *
+     */
+    DropDown.prototype.verifyChoice = function() {
+
+        var correct = this.correctChoice;
+        var current = this.currentChoice;
+
+        if (this.fixedChoice) {
+          if (!J.inArray(current, this.choices)) {
+            return false;
+          }
+        }
+        else {
+          if (this.requiredChoice) {
+              return this.currentChoice !== null;
+          }
+
+          // If no correct choice is set return null.
+          if ('undefined' === typeof correct) return null;
+          if ('string' === correct) {
+              return current === correct;
+          }
+          if ('number' === correct) {
+              return current === this.choices[correct];
+          }
+          if ('array' === correct) {
+              return current === correct.map(x=>this.choices[x]);
+          }
+        }
     };
 
     /**
