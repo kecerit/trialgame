@@ -190,6 +190,30 @@
          */
         this.errorBox = null;
 
+        /**
+         * ### DropDown.correctChoice
+         *
+         * The correct choice/s
+         *
+         * The field is an array or number|string.
+         *
+         */
+        this.correctChoice = null;
+
+        /**
+         * ### DropDown.requiredChoice
+         *
+         * If True, a choice is required.
+         */
+        this.requiredChoice = null;
+
+        /**
+         * ### DropDown.fixedChoice
+         *
+         * If True, custom values in menu do not validated.
+         */
+        this.fixedChoice = null;
+
 
    }
 
@@ -238,15 +262,61 @@
             this.choices = options.choices;
         }
 
+        // Option requiredChoice, if any.
+        if ('boolean' === typeof options.requiredChoice) {
+          this.requiredChoice = options.requiredChoice;
+        }
+        else if ('undefined' !== typeof options.requiredChoice) {
+            throw new TypeError('DropDown.init: options.requiredChoice ' +
+                                'be boolean or undefined. Found: ' +
+                                options.requiredChoice);
+        }
+
+        // Add the correct choices.
+        if ('undefined' !== typeof options.correctChoice) {
+            if (this.requiredChoice) {
+                throw new Error('DropDown.init: cannot specify both ' +
+                                'options requiredChoice and correctChoice');
+            }
+            else {
+              this.correctChoice = options.correctChoice;
+            }
+
+        }
+
+        // Option fixedChoice, if any.
+        if ('boolean' === typeof options.fixedChoice) {
+          this.fixedChoice = options.fixedChoice;
+        }
+        else if ('undefined' !== typeof options.fixedChoice) {
+            throw new TypeError('DropDown.init: options.fixedChoice ' +
+                                'be boolean or undefined. Found: ' +
+                                options.fixedChoice);
+        }
+
+
+
         if ( "undefined" === typeof options.tag ||
-        "Datalist" === options.tag ||
-        "Select" === options.tag) {
+             "Datalist" === options.tag ||
+             "Select" === options.tag) {
             this.tag = options.tag;
         }
         else {
             throw new TypeError('DropDown.init: options.tag must ' +
                                 'be "Datalist" or "Select". Found: ' +
                                 options.tag);
+        }
+
+        // Set the main onchange listener, if any.
+        if ('function' === typeof options.listener) {
+            this.listener = function(e) {
+                options.listener.call(this, e);
+            };
+        }
+        else if ('undefined' !== typeof options.listener) {
+            throw new TypeError('DropDown.init: opts.listener must ' +
+                                'be function or undefined. Found: ' +
+                                options.listener);
         }
 
         // Set an additional onchange, if any.
