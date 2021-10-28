@@ -464,25 +464,24 @@
         var correct = this.correctChoice;
         var current = this.currentChoice;
 
-        if (this.fixedChoice) {
-          if (!J.inArray(current, this.choices)) {
+
+        if (this.fixedChoice && this.choices.indexOf(current) < 0) {
             return false;
-          }
         }
         else {
           if (this.requiredChoice) {
-              return this.currentChoice !== null;
+              return current.length > 0;
           }
 
           // If no correct choice is set return null.
           if ('undefined' === typeof correct) return null;
-          if ('string' === correct) {
+          if ('string' === typeof correct) {
               return current === correct;
           }
-          if ('number' === correct) {
+          if ('number' === typeof correct) {
               return current === this.choices[correct];
           }
-          if ('array' === correct) {
+          if (J.isArray(correct)) {
               return current === correct.map(x=>this.choices[x]);
           }
         }
@@ -542,8 +541,45 @@
         this.emit('unhighlighted');
     };
 
+    /**
+     * ### DropDown.getValues
+     *
+     * Returns the values for current selection and other paradata
+     *
+     * Paradata that is not set or recorded will be omitted
+     *
+     * @return {object} Object containing the choice and paradata
+     *
+     * @see DropDown.verifyChoice
+     */
+    DropDown.prototype.getValues = function(opts) {
+        var obj;
+        opts = opts || {};
+        obj = {
+            id: this.id,
+            choice: this.fixedChoice ?
+            this.choices.indexOf(this.currentChoice): this.currentChoice,
+            time: this.timeCurrentChoice,
+            nChanges: this.numberOfChanges
+        };
+        if ('undefined' === typeof opts.highlight) opts.highlight = true;
+        if (this.shuffleChoices) obj.order = this.order;
 
+        // Option getValue backward compatible.
+        if (opts.addValue !== false && opts.getValue !== false) {
+            obj.value = this.currentChoice;
+        }
 
+        if (null !== this.correctChoice || null !== this.requiredChoice ||
+          null !== this.fixedChoice) {
+            obj.isCorrect = this.verifyChoice();
+            if (!obj.isCorrect && opts.highlight) this.highlight();
+        }
+        if (obj.isCorrect === false) {
+            this.setError(this.getText('error', obj.value));
+        }
+        return obj;
+    };
 
 
 
