@@ -100,6 +100,7 @@
              menu = e.target || e.srcElement;
 
              that.currentChoice = menu.value;
+             if (that.currentChoice.length === 0) that.currentChoice = null;
              // Relative time.
              if ('string' === typeof that.timeFrom) {
                  that.timeCurrentChoice = node.timer.getTimeSince(that.timeFrom);
@@ -213,6 +214,15 @@
          * If True, custom values in menu do not validated.
          */
         this.fixedChoice = null;
+
+        /**
+        * ### DropDown.inputWidth
+        *
+        * The width of the input form as string (css attribute)
+        *
+        * Some types preset it automatically
+        */
+       this.inputWidth = null;
 
 
    }
@@ -329,7 +339,7 @@
             this.onChange = options.onChange;
         }
         else if ('undefined' !== typeof options.onChange) {
-            throw new TypeError('ChoiceTable.init: opts.onclick must ' +
+            throw new TypeError('DropDownn.init: opts.onchange must ' +
                                 'be function or undefined. Found: ' +
                                 options.onChange);
         }
@@ -338,6 +348,14 @@
         if ('undefined' === typeof options.shuffleChoices) tmp = false;
         else tmp = !!options.shuffleChoices;
         this.shuffleChoices = tmp;
+
+        if (options.width) {
+            if ('string' !== typeof options.width) {
+                throw new TypeError( 'DropDownn.init:width must be string or ' +
+                                    'undefined. Found: ' + options.width);
+            }
+            this.inputWidth = options.width;
+        }
 
 
     }
@@ -388,6 +406,7 @@
           input.id = this.id;
           input.onchange = this.listener;
           if (placeHolder) { input.placeholder = placeHolder;}
+          if (this.inputWidth) input.style.width = this.inputWidth;
           this.bodyDiv.appendChild(input);
           this.bodyDiv.appendChild(datalist);
           this.menu = input;
@@ -400,6 +419,7 @@
           select = document.createElement('select');
           select.id = this.id;
           select.onchange = this.listener;
+          if (this.inputWidth) select.style.width = this.inputWidth;
           if (placeHolder) {
           option = document.createElement('option');
           option.value = "";
@@ -470,7 +490,7 @@
         }
         else {
           if (this.requiredChoice) {
-              return current.length > 0;
+              return current !== null;
           }
 
           // If no correct choice is set return null.
@@ -482,7 +502,8 @@
               return current === this.choices[correct];
           }
           if (J.isArray(correct)) {
-              return current === correct.map(x=>this.choices[x]);
+              var correctOptions = correct.map(x=>this.choices[x]);
+              return correctOptions.indexOf(current) >= 0;
           }
         }
     };
