@@ -13,9 +13,21 @@
 
     DropDown.texts = {
         // Texts here (more info on this later).
-        error: function() {
+        error: function(w, value) {
+            if ( value !== null && w.fixedChoice &&
+               w.choices.indexOf(value) < 0 ) {
+               return 'Please select one from the provided options.'
+            }
+            else if (value !== null &&
+               ('number' === typeof w.correctChoice ||
+               'string' === typeof w.correctChoice ||
+               J.isArray(w.correctChoice))) {
 
-            return 'There is something wrong.';
+               return 'Not correct, try again.';
+            }
+
+
+            return 'Answer required.';
         }
     };
 
