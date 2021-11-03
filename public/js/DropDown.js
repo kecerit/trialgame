@@ -26,7 +26,6 @@
                return 'Not correct, try again.';
             }
 
-
             return 'Answer required.';
         }
     };
