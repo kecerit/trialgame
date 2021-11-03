@@ -13,9 +13,21 @@
 
     DropDown.texts = {
         // Texts here (more info on this later).
-        error: function() {
+        error: function(w, value) {
+            if ( value !== null && w.fixedChoice &&
+               w.choices.indexOf(value) < 0 ) {
+               return 'Please select one from the provided options.'
+            }
+            if (value !== null &&
+               ('number' === typeof w.correctChoice ||
+               'string' === typeof w.correctChoice ||
+               J.isArray(w.correctChoice))) {
 
-            return 'There is something wrong.';
+               return 'Not correct, try again.';
+            }
+
+
+            return 'Answer required.';
         }
     };
 
@@ -26,10 +38,7 @@
     // Title is displayed in the header.
     DropDown.title = '';
     // Classname is added to the widgets.
-    DropDown.className = 'DropDown';
-
-    // Dependencies are checked when the widget is created.
-    DropDown.dependencies = { JSUS: {} };
+    DropDown.className = 'dropdown';
 
     // Constructor taking a configuration parameter.
     // The options object is always existing.
@@ -70,7 +79,7 @@
         /**
          * ### DropDown.tag
          *
-         * HTML tag options. Either "Datalist" or "Select".
+         * HTML tag options. Either "datalist" or "select".
          */
         this.tag = null;
 
@@ -92,6 +101,7 @@
 
          var that;
          that = this;
+
 
          this.listener = function(e) {
              var  menu;
@@ -117,10 +127,11 @@
              // Remove any warning/errors on change.
              if (that.isHighlighted()) that.unhighlight();
 
-             // Call onclick, if any.
+             // Call onchange, if any.
              if (that.onChange) {
 
-                that.onChange.call();
+
+                that.onChange(that.currentChoice, that);
              }
 
          };
@@ -312,13 +323,13 @@
 
 
         if ( "undefined" === typeof options.tag ||
-             "Datalist" === options.tag ||
-             "Select" === options.tag) {
+             "datalist" === options.tag ||
+             "select" === options.tag) {
             this.tag = options.tag;
         }
         else {
             throw new TypeError('DropDown.init: options.tag must ' +
-                                'be "Datalist" or "Select". Found: ' +
+                                'be "datalist" or "select". Found: ' +
                                 options.tag);
         }
 
@@ -372,95 +383,99 @@
         //   - footerDiv:  the footer container
         //
 
-        if (W.getElementById(this.id)) {
+        if (W.gid(this.id)) {
             throw new Error('DropDown.append: id is not ' +
                             'unique: ' + this.id);
         }
           var text = this.text;
           var label = this.label;
-          var tag = this.tag;
-          var option = this.option;
-          var choices = this.choices;
-          var placeHolder = this.placeHolder;
-          var order = this.order;
-          var p = this.p;
 
-          text = document.createElement('p');
+          text =W.get('p');
           text.innerHTML = this.mainText;
           this.bodyDiv.appendChild(text);
 
-          label = document.createElement('label');
+          label =W.get('label');
           label.innerHTML = this.labelText
           this.bodyDiv.appendChild(label);
 
-        if (tag === "Datalist" || "undefined" === typeof tag) {
-
-          var datalist = this.datalist;
-          var input = this.input;
-
-          datalist = document.createElement('datalist');
-          datalist.id = "dropdown"
-
-          input = document.createElement('input');
-          input.setAttribute('list', datalist.id);
-          input.id = this.id;
-          input.onchange = this.listener;
-          if (placeHolder) { input.placeholder = placeHolder;}
-          if (this.inputWidth) input.style.width = this.inputWidth;
-          this.bodyDiv.appendChild(input);
-          this.bodyDiv.appendChild(datalist);
-          this.menu = input;
-
-        }
-        else if (tag === "Select") {
-
-          var select = this.select;
-
-          select = document.createElement('select');
-          select.id = this.id;
-          select.onchange = this.listener;
-          if (this.inputWidth) select.style.width = this.inputWidth;
-          if (placeHolder) {
-          option = document.createElement('option');
-          option.value = "";
-          option.innerHTML = placeHolder;
-          option.setAttribute("disabled","");
-          option.setAttribute("selected","");
-          option.setAttribute("hidden","");
-          select.appendChild(option);
-          }
-
-          this.bodyDiv.appendChild(select);
-          this.menu = select;
-        }
-
-        let len = choices.length;
-        order = J.seq(0, len-1);
-        if (this.shuffleChoices) order = J.shuffle(order);
-
-        for (let i = 0; i < len; i++) {
-
-          option = document.createElement('option');
-          option.value = choices[order[i]];
-          option.innerHTML = choices[order[i]];
-
-          if (tag === "Datalist" || "undefined" === typeof tag) {
-          datalist.appendChild(option);
-          }
-          else if (tag === "Select") {
-          select.appendChild(option);
-          }
-        }
+          this.setChoices(this.choices, true);
 
         this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
 
-        p = document.createElement('p');
-        p.id = this.id + "p";
-        this.bodyDiv.appendChild(p);
-
-
-
     };
+
+
+    DropDown.prototype.setChoices = function(choices, append) {
+        var tag = this.tag;
+        var option = this.option;
+        var placeHolder = this.placeHolder;
+        var order = this.order;
+
+        // TODO validate choices.
+        this.choices = choices;
+
+        if (!append) return;
+
+        var create = false;
+        if (this.menu) this.menu.innerHTML = '';
+        else create = true;
+
+        if (create) {
+        tag = this.tag;
+        if (tag === "datalist" || "undefined" === typeof tag) {
+
+            var datalist = this.datalist;
+            var input = this.input;
+  
+            datalist =W.get('datalist');
+            datalist.id = "dropdown"
+  
+            input =W.get('input');
+            input.setAttribute('list', datalist.id);
+            input.id = this.id;
+            input.onchange = this.listener;
+            if (placeHolder) { input.placeholder = placeHolder;}
+            if (this.inputWidth) input.style.width = this.inputWidth;
+            this.bodyDiv.appendChild(input);
+            this.bodyDiv.appendChild(datalist);
+            this.menu = input;
+  
+          }
+          else if (tag === "select") {
+  
+            var select = this.select;
+  
+            select =W.get('select');
+            select.id = this.id;
+            select.onchange = this.listener;
+            if (this.inputWidth) select.style.width = this.inputWidth;
+            if (placeHolder) {
+            option =W.get('option');
+            option.value = "";
+            option.innerHTML = placeHolder;
+            option.setAttribute("disabled","");
+            option.setAttribute("selected","");
+            option.setAttribute("hidden","");
+            select.appendChild(option);
+            }
+  
+            this.bodyDiv.appendChild(select);
+            this.menu = select;
+          }
+        }
+          let len = choices.length;
+          order = J.seq(0, len-1);
+          if (this.shuffleChoices) order = J.shuffle(order);
+  
+          for (let i = 0; i < len; i++) {
+  
+            option =W.get('option');
+            option.value = choices[order[i]];
+            option.innerHTML = choices[order[i]];
+  
+            this.menu.appendChild(option);
+          }
+    }
 
     /**
      * ### DropDown.verifyChoice
@@ -481,31 +496,35 @@
      */
     DropDown.prototype.verifyChoice = function() {
 
+        var that = this;
         var correct = this.correctChoice;
         var current = this.currentChoice;
+        var verif;
 
-
-        if (this.fixedChoice && this.choices.indexOf(current) < 0) {
-            return false;
-        }
-        else {
           if (this.requiredChoice) {
-              return current !== null;
+              verif = current !== null;
           }
 
           // If no correct choice is set return null.
-          if ('undefined' === typeof correct) return null;
+          if ('undefined' === typeof correct) verif = null;
           if ('string' === typeof correct) {
-              return current === correct;
+              verif = current === correct;
           }
           if ('number' === typeof correct) {
-              return current === this.choices[correct];
+              verif = current === this.choices[correct];
           }
           if (J.isArray(correct)) {
-              var correctOptions = correct.map(x=>this.choices[x]);
-              return correctOptions.indexOf(current) >= 0;
+              var correctOptions = correct.map( function(x) {
+                return that.choices[x];
+              });
+              verif = correctOptions.indexOf(current) >= 0;
           }
-        }
+
+          if (this.fixedChoice) {
+              if (this.choices.indexOf(current) < 0) verif = false;
+          }
+
+          return verif;
     };
 
     /**
@@ -592,7 +611,7 @@
         }
 
         if (null !== this.correctChoice || null !== this.requiredChoice ||
-          null !== this.fixedChoice) {
+          null !== this.fixedChoice ) {
             obj.isCorrect = this.verifyChoice();
             if (!obj.isCorrect && opts.highlight) this.highlight();
         }

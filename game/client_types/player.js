@@ -147,7 +147,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 shuffleChoices: true,
                 placeHolder: "Choose a state",
                 requiredChoice: true,
-                width: "300px"
+                width: "100%"
                },
                done: function(values) {
                    node.game.State = values.forms.State.value;
