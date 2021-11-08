@@ -95,10 +95,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                        labelText: 'I am currently living in:  ',
                        choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
                                    "Hesse"],
-                       onChange: function () {
-                       var x = W.getElementById('State').value;
-                       W.setInnerHTML('Statep', "You are currtently living in " + x +".");
-                     },
+                       onchange: function (value) {
+                       W.setInnerHTML('p', "You are currtently living in " + value +".");
+                       },
+                       validation: function(value, obj) {
+                         if (value.length > 10) {
+                           obj.value = false;
+                           obj.err = 'You selected an item that is too long.';
+                         }
+                       },
                        shuffleChoices: true,
                        placeHolder: "Choose a State",
                        requiredChoice: true,
@@ -174,9 +179,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('City').value;
                 W.setInnerHTML('Cityp', "You are currtently living in " + x +".")
                },
-               tag: "Select",
+               tag: "select",
                shuffleChoices: true,
-               placeHolder: "Choose a city",
                correctChoice: [0,3]
                },
                done: function(values) {
@@ -202,7 +206,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var x = W.getElementById('Travel').value;
                 W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
                 },
-               tag: "Datalist",
+               tag: "datalist",
                correctChoice: 0
                },
                done: function(values) {
