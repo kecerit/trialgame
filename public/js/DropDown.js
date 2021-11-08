@@ -497,6 +497,7 @@
             input = W.get('input');
             input.setAttribute('list', datalist.id);
             input.id = this.id;
+            input.autocomplete = "off";
             if (placeHolder) { input.placeholder = placeHolder;}
             if (this.inputWidth) input.style.width = this.inputWidth;
             this.bodyDiv.appendChild(input);
