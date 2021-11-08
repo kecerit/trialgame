@@ -426,13 +426,13 @@
             var datalist = this.datalist;
             var input = this.input;
 
-            datalist =W.get('datalist');
+            datalist = W.get('datalist');
             datalist.id = "dropdown";
 
             input = W.get('input');
             input.setAttribute('list', datalist.id);
             input.id = this.id;
-            input.onchange = this.listener;
+
             if (placeHolder) { input.placeholder = placeHolder;}
             if (this.inputWidth) input.style.width = this.inputWidth;
             this.bodyDiv.appendChild(input);
@@ -446,7 +446,6 @@
 
             select = W.get('select');
             select.id = this.id;
-            select.onchange = this.listener;
             if (this.inputWidth) select.style.width = this.inputWidth;
             if (placeHolder) {
             option =W.get('option');
@@ -481,6 +480,8 @@
               select.appendChild(option);
             }
           }
+
+          this.enable();
     }
 
     /**
@@ -634,6 +635,58 @@
         }
         return obj;
     };
+
+    /**
+     * ### ChoiceTable.listeners
+     *
+     * Implements Widget.listeners
+     *
+     * Adds two listeners two disable/enable the widget on events:
+     * INPUT_DISABLE, INPUT_ENABLE
+     *
+     * @see Widget.listeners
+     */
+    DropDown.prototype.listeners = function() {
+        var that = this;
+        node.on('INPUT_DISABLE', function() {
+            that.disable();
+        });
+        node.on('INPUT_ENABLE', function() {
+            that.enable();
+        });
+    };
+
+    /**
+     * ### ChoiceTable.disable
+     *
+     * Disables clicking on the table and removes CSS 'clicklable' class
+     */
+    DropDown.prototype.disable = function() {
+        if (this.disabled === true) return;
+        this.disabled = true;
+        if (this.menu) {
+            this.menu.removeEventListener('change', this.listener);
+        }
+        this.emit('disabled');
+    };
+
+    /**
+     * ### ChoiceTable.enable
+     *
+     * Enables clicking on the table and adds CSS 'clicklable' class
+     *
+     * @return {function} cb The event listener function
+     */
+    DropDown.prototype.enable = function() {
+        if (this.disabled === false) return;
+        if (!this.menu) {
+            throw new Error('DropDown.enable: menu is not defined');
+        }
+        this.disabled = false;
+        this.menu.addEventListener('change', this.listener);
+        this.emit('enabled');
+    };
+
 
 
 
