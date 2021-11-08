@@ -25,6 +25,9 @@
 
                return 'Not correct, try again.';
             }
+            if (value !== null && w.verifyChoice().err) {
+              return w.verifyChoice().err;
+            }
 
             return 'Answer required.';
         }
@@ -103,7 +106,7 @@
 
 
          this.listener = function(e) {
-             var  menu;
+             var  menu, timeout;
 
              e = e || window.event;
              menu = e.target || e.srcElement;
@@ -125,6 +128,16 @@
 
              // Remove any warning/errors on change.
              if (that.isHighlighted()) that.unhighlight();
+
+             if (timeout) clearTimeout(timeout);
+
+             timeout = setTimeout(function() {
+               that.verifyChoice();
+               if (that.verifyChoice().err) {
+                 that.setError(that.verifyChoice().err)
+               }
+
+            }, that.validationSpeed);
 
              // Call onchange, if any.
              if (that.onchange) {
@@ -233,6 +246,32 @@
         * Some types preset it automatically
         */
        this.inputWidth = null;
+
+       /**
+         * ### CustomInput.userValidation
+         *
+         * An additional validation executed after the main validation function
+         *
+         * The function returns an object like:
+         *
+         * ```javascript
+         *  {
+         *    value: 'validvalue',
+         *    err:   'This error occurred' // If invalid.
+         *  }
+         * ```
+         */
+        this.validation = null;
+
+        /**
+         * ### DropDown.validationSpeed
+         *
+         * How often (in milliseconds) the validation function is called
+         *
+         * Default: 500
+         */
+        this.validationSpeed = 500;
+
 
 
    }
@@ -354,6 +393,17 @@
                                 options.onchange);
         }
 
+        // Set an additional validation, if any.
+        if ('function' === typeof options.validation) {
+            this.validation = options.validation;
+        }
+        else if ('undefined' !== typeof options.validation) {
+            throw new TypeError('DropDownn.init: opts.validation must ' +
+                                'be function or undefined. Found: ' +
+                                options.validation);
+        }
+
+
         // Option shuffleChoices, default false.
         if ('undefined' === typeof options.shuffleChoices) tmp = false;
         else tmp = !!options.shuffleChoices;
@@ -365,6 +415,18 @@
                                     'undefined. Found: ' + options.width);
             }
             this.inputWidth = options.width;
+        }
+
+        // Validation Speed
+        if ('undefined' !== typeof options.validationSpeed) {
+
+            tmp = J.isInt(options.valiadtionSpeed, 0, undefined, true);
+            if (tmp === false) {
+                throw new TypeError('DropDownn.init: validationSpeed must a non-negative ' +
+                                    'number or undefined. Found: ' +
+                                    options.validationSpeed);
+            }
+            this.validationSpeed = tmp;
         }
 
 
@@ -391,7 +453,9 @@
 
           text =W.get('p');
           text.innerHTML = this.mainText;
+          text.id = 'p';
           this.bodyDiv.appendChild(text);
+
 
           label =W.get('label');
           label.innerHTML = this.labelText
@@ -399,7 +463,8 @@
 
           this.setChoices(this.choices, true);
 
-        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
+        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox', id: 'errbox'});
+
 
     };
 
@@ -432,7 +497,6 @@
             input = W.get('input');
             input.setAttribute('list', datalist.id);
             input.id = this.id;
-
             if (placeHolder) { input.placeholder = placeHolder;}
             if (this.inputWidth) input.style.width = this.inputWidth;
             this.bodyDiv.appendChild(input);
@@ -506,7 +570,8 @@
         var that = this;
         var correct = this.correctChoice;
         var current = this.currentChoice;
-        var verif;
+        var res = {value: ''};
+
 
           if (this.tag === "select" && this.numberOfChanges === 0) {
 
@@ -515,29 +580,37 @@
           }
 
           if (this.requiredChoice) {
-              verif = current !== null;
+              res.value = current !== null;
           }
 
           // If no correct choice is set return null.
-          if ('undefined' === typeof correct) verif = null;
+          if ('undefined' === typeof correct) res.value = null;
           if ('string' === typeof correct) {
-              verif = current === correct;
+              res.value = current === correct;
           }
           if ('number' === typeof correct) {
-              verif = current === this.choices[correct];
+              res.value = current === this.choices[correct];
           }
           if (J.isArray(correct)) {
               var correctOptions = correct.map( function(x) {
                 return that.choices[x];
               });
-              verif = correctOptions.indexOf(current) >= 0;
+              res.value = correctOptions.indexOf(current) >= 0;
           }
 
           if (this.fixedChoice) {
-              if (this.choices.indexOf(current) < 0) verif = false;
+              if (this.choices.indexOf(current) < 0) res.value = false;
           }
 
-          return verif;
+          if (this.validation) {
+            if (undefined === typeof res) {
+                throw new TypeError('something');
+            }
+
+            this.validation(this.currentChoice, res);
+          }
+
+          return res;
     };
 
     /**
@@ -608,7 +681,7 @@
     DropDown.prototype.getValues = function(opts) {
         var obj;
         opts = opts || {};
-        var verif = this.verifyChoice();
+        var verif = this.verifyChoice().value;
 
         obj = {
             id: this.id,
