@@ -127,20 +127,20 @@
              if (that.isHighlighted()) that.unhighlight();
 
              // Call onchange, if any.
-             if (that.onChange) {
+             if (that.onchange) {
 
 
-                that.onChange(that.currentChoice, that);
+                that.onchange(that.currentChoice, that);
              }
 
          };
 
         /*
-         * ### DropDown.onChange
+         * ### DropDown.onchange
          *
          * User defined onchange function.
          */
-        this.onChange = null;
+        this.onchange = null;
 
         /**
          * ### DropDown.timeCurrentChoice
@@ -345,13 +345,13 @@
         }
 
         // Set an additional onchange, if any.
-        if ('function' === typeof options.onChange) {
-            this.onChange = options.onChange;
+        if ('function' === typeof options.onchange) {
+            this.onchange = options.onchange;
         }
-        else if ('undefined' !== typeof options.onChange) {
+        else if ('undefined' !== typeof options.onchange) {
             throw new TypeError('DropDownn.init: opts.onchange must ' +
                                 'be function or undefined. Found: ' +
-                                options.onChange);
+                                options.onchange);
         }
 
         // Option shuffleChoices, default false.
@@ -426,7 +426,7 @@
             var datalist = this.datalist;
             var input = this.input;
 
-            datalist = W.get('datalist');
+            datalist =W.get('datalist');
             datalist.id = "dropdown";
 
             input = W.get('input');
