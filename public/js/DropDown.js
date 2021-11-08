@@ -425,11 +425,11 @@
 
             var datalist = this.datalist;
             var input = this.input;
-  
-            datalist =W.get('datalist');
-            datalist.id = "dropdown"
-  
-            input =W.get('input');
+
+            datalist = W.get('datalist');
+            datalist.id = "dropdown";
+
+            input = W.get('input');
             input.setAttribute('list', datalist.id);
             input.id = this.id;
             input.onchange = this.listener;
@@ -438,13 +438,13 @@
             this.bodyDiv.appendChild(input);
             this.bodyDiv.appendChild(datalist);
             this.menu = input;
-  
+
           }
           else if (tag === "select") {
-  
+
             var select = this.select;
-  
-            select =W.get('select');
+
+            select = W.get('select');
             select.id = this.id;
             select.onchange = this.listener;
             if (this.inputWidth) select.style.width = this.inputWidth;
@@ -457,7 +457,7 @@
             option.setAttribute("hidden","");
             select.appendChild(option);
             }
-  
+
             this.bodyDiv.appendChild(select);
             this.menu = select;
           }
@@ -465,14 +465,21 @@
           let len = choices.length;
           order = J.seq(0, len-1);
           if (this.shuffleChoices) order = J.shuffle(order);
-  
+
           for (let i = 0; i < len; i++) {
-  
+
             option =W.get('option');
             option.value = choices[order[i]];
             option.innerHTML = choices[order[i]];
-  
-            this.menu.appendChild(option);
+
+            if (tag === "datalist" || "undefined" === typeof tag) {
+
+              datalist.appendChild(option);
+            }
+            else if (tag === "select") {
+
+              select.appendChild(option);
+            }
           }
     }
 
@@ -499,6 +506,12 @@
         var correct = this.correctChoice;
         var current = this.currentChoice;
         var verif;
+
+          if (this.tag === "select" && this.numberOfChanges === 0) {
+
+              current = this.currentChoice = this.menu.value;
+
+          }
 
           if (this.requiredChoice) {
               verif = current !== null;
@@ -594,6 +607,8 @@
     DropDown.prototype.getValues = function(opts) {
         var obj;
         opts = opts || {};
+        var verif = this.verifyChoice();
+
         obj = {
             id: this.id,
             choice: this.fixedChoice ?
@@ -611,7 +626,7 @@
 
         if (null !== this.correctChoice || null !== this.requiredChoice ||
           null !== this.fixedChoice ) {
-            obj.isCorrect = this.verifyChoice();
+            obj.isCorrect = verif;
             if (!obj.isCorrect && opts.highlight) this.highlight();
         }
         if (obj.isCorrect === false) {
