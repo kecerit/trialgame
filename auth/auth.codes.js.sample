@@ -39,7 +39,7 @@ const NDDB = require('NDDB').NDDB;
 
 module.exports = function(settings, done) {
     var nCodes, i, db, codes;
-    var dk, confPath;
+    // var dk, confPath;
     var format, code;
     var keys;
 
@@ -75,7 +75,7 @@ module.exports = function(settings, done) {
             };
             // Optionally add a password field.
             if (settings.addPwd) {
-                code[i].pwd = J.uniqueKey(keys, J.randomString(8, 'aA1!'));
+                codes[i].pwd = J.uniqueKey(keys, J.randomString(8, 'aA1'));
             }
         }
         return codes;
@@ -156,24 +156,29 @@ module.exports = function(settings, done) {
                         'developers in case you need this feature.');
 
         // Reads in descil-mturk configuration.
-        confPath = path.resolve(__dirname, 'descil.conf.js');
-        dk = require('descil-mturk')();
+        // confPath = path.resolve(__dirname, 'descil.conf.js');
+        // dk = require('descil-mturk')();
+        //
+        // dk.readConfiguration(confPath);
+        //
+        // // Convert format.
+        // dk.codes.on('insert', function(o) {
+        //     o.id = o.AccessCode;
+        // });
+        //
+        // dk.getCodes(function() {
+        //     if (!dk.codes.size()) {
+        //         done('Auth.codes: no codes found!');
+        //     }
+        //     console.log(dk.codes.db);
+        //     done(null, dk.codes.db);
+        // });
+        // return;
+    }
 
-        dk.readConfiguration(confPath);
-
-        // Convert format.
-        dk.codes.on('insert', function(o) {
-            o.id = o.AccessCode;
-        });
-
-        dk.getCodes(function() {
-            if (!dk.codes.size()) {
-                done('Auth.codes: no codes found!');
-            }
-            console.log(dk.codes.db);
-            done(null, dk.codes.db);
-        });
-        return;
+    if (settings.mode === 'external') {
+        // It will be added by query URL.
+        return [];
     }
 
     // Unknown code.

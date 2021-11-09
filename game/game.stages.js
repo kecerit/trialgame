@@ -9,24 +9,36 @@
  * ---
  */
 
-module.exports = function(stager, settings) {
+module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
      stager
-        .next('instructions')
-        .next('quiz')
-        .next('DD1')
-        .next('DD2')
-        .next('DD3')
-        .repeat('game', settings.ROUNDS)
-        .step('guess')
-        .step('results')
-        .next('end')
+        .stage('instructions')
+
+        .stage('quiz')
+
+        .stage('DD1')
+
+        .stage('DD2')
+
+        .stage('DD3')
+
+        .repeatStage('game', settings.ROUNDS)
+            .step('guess')
+            .step('results')
+
+        .stage('end')
+
         .gameover();
 
-    // Modify the stager to skip one stage.
+    // Notice: here all stages but 'game' have
+    // one step named after the stage.
+
+    // Skip one stage.
     // stager.skip('instructions');
 
-    // To skip a step within a stage use:
-    // stager.skip('stageName', 'stepName');
-    // Notice: here all stages have just one step.
+    // Skip multiple stages:
+    // stager.skip([ 'instructions', 'quiz' ])
+
+    // Skip a step within a stage:
+    // stager.skip('game', 'results');
 };

@@ -12,7 +12,7 @@
  * ---
  */
 module.exports = function(settings, done) {
-    return 'k9snH6ZIAAHr66B';
+    return 'epQD7SHZOmR3h0s';
 
     // Example: return key asynchronously
 

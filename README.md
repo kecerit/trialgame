@@ -3,7 +3,7 @@
 
 ## Description
 
-just a trial
+A game to try DropDown Widget.
 
 ## License
 

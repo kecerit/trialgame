@@ -27,8 +27,10 @@ module.exports = {
      *   - 'local': reads the authorization codes from a file. Defaults:
      *              codes.json, code.csv. A custom file can be specified
      *              in settings.file (available formats: json and csv).
-     *   - 'remote': fetches the authorization codes from a remote URI.
-     *               Available protocol: DeSciL protocol.
+     *   - 'remote': **Currently disabled** fetches the authorization codes
+     *               from a remote URI. Available protocol: DeSciL protocol.
+     *   -  external': allows users to set their own ids upon connection.
+     *               Useful if a third-party service provides participants.
      *   - 'custom': The 'customCb' property of the settings object
      *               will be executed with settings and done callback
      *               as parameters.
@@ -171,7 +173,7 @@ module.exports = {
      * (e.g. mode, etc.) and returns synchronously or asynchronously
      * an array of valid authorization codes.
      */
-    //codes: 'path/to/code/generator.js',
+    //codes: 'auth.codes.js',
 
     // # Reserved words for future requirements settings.
 
