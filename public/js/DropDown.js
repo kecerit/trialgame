@@ -37,29 +37,32 @@
     // Constructor taking a configuration parameter.
     // The options object is always existing.
     function DropDown() {
+        var that;
+        that = this;
+
         // You can define widget properties here,
         // but they should get assigned a value in init.
 
         this.id = null;
 
         /**
-         * ### DropDown.labelText
+         * ### DropDown.mainText
          *
-         * A label text for the input.
+         * Main text above the dropdown
          */
         this.mainText = null;
 
         /**
          * ### DropDown.labelText
          *
-         * A label text for the input.
+         * A label text for the input
          */
         this.labelText = null;
 
         /**
-         * ### DropDown.placeHolder.
+         * ### DropDown.placeHolder
          *
-         * A placeHolder text for the input.
+         * A placeHolder text for the input
          */
         this.placeHolder = null;
 
@@ -73,30 +76,24 @@
         /**
          * ### DropDown.tag
          *
-         * HTML tag options. Either "datalist" or "select".
+         * The HTML tag: "datalist" or "select"
          */
         this.tag = null;
 
         /**
          * ### DropDown.menu
          *
-         * Main HTML tag depend on the value of DropDown.tag
+         * Holder of the HTML element (datalist or select)
          */
-
         this.menu = null;
 
         /**
          * ### DropDown.listener
          *
-         * The main function listening on changes
-         *addEventListener
+         * The main listener 
+         * 
          * @see DropDown.onchange
          */
-
-        var that;
-        that = this;
-
-
         this.listener = function (e) {
             var menu, timeout;
 
@@ -105,6 +102,7 @@
 
             that.currentChoice = menu.value;
             if (that.currentChoice.length === 0) that.currentChoice = null;
+
             // Relative time.
             if ('string' === typeof that.timeFrom) {
                 that.timeCurrentChoice = node.timer.getTimeSince(that.timeFrom);
@@ -143,7 +141,7 @@
         /*
          * ### DropDown.onchange
          *
-         * User defined onchange function.
+         * User defined onchange function
          */
         this.onchange = null;
 
@@ -263,8 +261,6 @@
          * Default: 500
          */
         this.validationSpeed = 500;
-
-
 
     }
 
@@ -426,19 +422,9 @@
 
     // Implements the Widget.append method.
     DropDown.prototype.append = function () {
-        // Widgets are Bootstrap panels. The following HTML
-        // elements are available at the time when
-        // the `append` method is called:
-        //
-        //   - panelDiv:   the outer container
-        //   - headingDiv: the title container
-        //   - bodyDiv:    the main container
-        //   - footerDiv:  the footer container
-        //
 
         if (W.gid(this.id)) {
-            throw new Error('DropDown.append: id is not ' +
-                'unique: ' + this.id);
+            throw new Error('DropDown.append: id is not unique: ' + this.id);
         }
         var text = this.text;
         var label = this.label;
@@ -448,16 +434,15 @@
         text.id = 'p';
         this.bodyDiv.appendChild(text);
 
-
         label = W.get('label');
         label.innerHTML = this.labelText
         this.bodyDiv.appendChild(label);
 
         this.setChoices(this.choices, true);
 
-        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox', id: 'errbox' });
-
-
+        this.errorBox = W.append('div', this.bodyDiv, { 
+            className: 'errbox', id: 'errbox'
+        });
     };
 
 
@@ -609,7 +594,7 @@
     /**
      * ### ChoiceTable.setError
      *
-     * Set the error msg inside the errorBox.
+     * Set the error msg inside the errorBox
      *
      * @param {string} The error msg (can contain HTML)
      *
@@ -626,7 +611,7 @@
     /**
      * ### DropDown.highlight
      *
-     * Highlights the input.
+     * Highlights the input
      *
      * @param {string} The style for the table's border.
      *   Default '3px solid red'
@@ -647,7 +632,7 @@
     /**
      * ### DropDown.unhighlight
      *
-     * Removes highlight.
+     * Removes highlight
      *
      * @see DropDown.highlighted
      */
@@ -752,9 +737,5 @@
         this.menu.addEventListener('change', this.listener);
         this.emit('enabled');
     };
-
-
-
-
 
 })(node);
