@@ -15,12 +15,12 @@
 
 const ngc = require('nodegame-client');
 
-module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
+module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
     // Make the player step through the steps without waiting for other players.
     stager.setDefaultStepRule(ngc.stepRules.SOLO);
 
-    stager.setOnInit(function() {
+    stager.setOnInit(function () {
 
         // Initialize the client.
 
@@ -48,7 +48,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
-        cb: function() {
+        cb: function () {
             var s;
             // Note: we need to specify node.game.settings,
             // and not simply settings, because this code is
@@ -62,13 +62,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('quiz', {
-        cb: function() {
+        cb: function () {
             // Modify CSS rules on the fly.
             W.cssRule('.choicetable-left, .choicetable-right ' +
-                      '{ width: 200px !important; }');
+                '{ width: 200px !important; }');
 
             W.cssRule('table.choicetable td { text-align: left !important; ' +
-                      'font-weight: normal; padding-left: 10px; }');
+                'font-weight: normal; padding-left: 10px; }');
 
             W.cssRule('.panel-body { border: 0; }');
         },
@@ -79,38 +79,38 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             id: 'quiz',
             options: {
                 mainText: 'Answer the following questions to check ' +
-                          'your understanding of the game.',
+                    'your understanding of the game.',
                 forms: [
-                       {
+                    {
                         name: 'ChoiceTable',
                         id: 'howmany',
                         mainText: 'How many players are there in this game? ',
-                        choices: [ 1, 2, 3 ],
+                        choices: [1, 2, 3],
                         correctChoice: 0
-                      },
-                      {
-                       name: 'DropDown',
-                       id: 'State',
-                       mainText: "Please fill in the sentence below.",
-                       labelText: 'I am currently living in:  ',
-                       choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
-                                   "Hesse"],
-                       onchange: function (value) {
-                       W.setInnerHTML('p', "You are currtently living in " + value +".");
-                       },
-                       validation: function(value, obj) {
-                         if (value.length > 10) {
-                           obj.value = false;
-                           obj.err = 'You selected an item that is too long.';
-                         }
-                       },
-                       shuffleChoices: true,
-                       placeHolder: "Choose a State",
-                       requiredChoice: true,
-                       fixedChoice: true,
+                    },
+                    {
+                        name: 'DropDown',
+                        id: 'State',
+                        mainText: "Please fill in the sentence below.",
+                        labelText: 'I am currently living in:  ',
+                        choices: ["Baden-Württemberg", "Bavaria", "Berlin",
+                            "Hesse"],
+                        onchange: function (value) {
+                            W.setInnerHTML('p', "You are currtently living in " + value + ".");
+                        },
+                        validation: function (value, obj) {
+                            if (value.length > 10) {
+                                obj.value = false;
+                                obj.err = 'You selected an item that is too long.';
+                            }
+                        },
+                        shuffleChoices: true,
+                        placeHolder: "Choose a State",
+                        requiredChoice: true,
+                        fixedChoice: true,
 
-                     },
-                      {
+                    },
+                    {
                         name: 'ChoiceTable',
                         id: 'coins',
                         mainText: 'How many coins can you win in each round?',
@@ -132,7 +132,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('DD1', {
-        cb: function() {
+        cb: function () {
 
 
         },
@@ -143,26 +143,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 id: 'State',
                 mainText: "Please fill in the sentence below.",
                 labelText: 'I am currently living in:  ',
-                choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
-                            "Hesse"],
+                choices: ["Baden-Württemberg", "Bavaria", "Berlin",
+                    "Hesse"],
                 onChange: function () {
-                var x = W.getElementById('State').value;
-                W.setInnerHTML('Statep', "You are currtently living in " + x +".");
-              },
+                    var x = W.getElementById('State').value;
+                    W.setInnerHTML('Statep', "You are currtently living in " + x + ".");
+                },
                 shuffleChoices: true,
                 placeHolder: "Choose a state",
                 requiredChoice: true,
                 width: "100%"
-               },
-               done: function(values) {
-                   node.game.State = values.forms.State.value;
-               },
+            },
+            done: function (values) {
+                node.game.State = values.forms.State.value;
+            },
 
-            }
+        }
     });
 
     stager.extendStep('DD2', {
-        cb: function() {
+        cb: function () {
 
 
         },
@@ -173,25 +173,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 id: 'City',
                 mainText: "Please fill in the sentence below.",
                 labelText: 'I am currently living in:  ',
-                choices: [ "Stuttgart ", "Frankfurt am Main", "Coburg",
-                 "Erlangen", "Schweinfurt", "Mannheim", "Heidelberg"],
+                choices: ["Stuttgart ", "Frankfurt am Main", "Coburg",
+                    "Erlangen", "Schweinfurt", "Mannheim", "Heidelberg"],
                 onChange: function () {
-                var x = W.getElementById('City').value;
-                W.setInnerHTML('Cityp', "You are currtently living in " + x +".")
-               },
-               tag: "select",
-               shuffleChoices: true,
-               correctChoice: [0,3]
-               },
-               done: function(values) {
-                   node.game.City = values.forms.City.value;
-               },
+                    var x = W.getElementById('City').value;
+                    W.setInnerHTML('Cityp', "You are currtently living in " + x + ".")
+                },
+                tag: "select",
+                shuffleChoices: true,
+                correctChoice: [0, 3]
+            },
+            done: function (values) {
+                node.game.City = values.forms.City.value;
+            },
 
-            }
+        }
     });
 
     stager.extendStep('DD3', {
-        cb: function() {
+        cb: function () {
 
 
         },
@@ -201,23 +201,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             options: {
                 id: 'Travel',
                 labelText: 'I mostly travel with a : ',
-                choices: [ "Train", "Bus", "Car","Plane","Other"],
+                choices: ["Train", "Bus", "Car", "Plane", "Other"],
                 onChange: function () {
-                var x = W.getElementById('Travel').value;
-                W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
+                    var x = W.getElementById('Travel').value;
+                    W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
                 },
-               tag: "datalist",
-               correctChoice: 0
-               },
-               done: function(values) {
-                   node.game.Travel = values.forms.Travel.value;
-               },
+                tag: "datalist",
+                correctChoice: 0
+            },
+            done: function (values) {
+                node.game.Travel = values.forms.Travel.value;
+            },
 
-            }
+        }
     });
 
     stager.extendStep('guess', {
-        init: function() {
+        init: function () {
             node.game.visualTimer.show();
         },
         widget: {
@@ -226,8 +226,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             options: {
                 id: 'guess',
                 mainText: 'The system will generate a random number between ' +
-                          '1 and 10. Will the random number be larger than 5?',
-                choices: [ 'Yes, larger than 5', 'Smaller than or equal to 5' ],
+                    '1 and 10. Will the random number be larger than 5?',
+                choices: ['Yes, larger than 5', 'Smaller than or equal to 5'],
                 hint: '(A random decision will be made if timer expires)',
                 requiredChoice: true,
                 shuffleChoices: true,
@@ -235,12 +235,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 title: false
             }
         },
-        done: function(values) {
+        done: function (values) {
             return {
                 greater: values.value === 'Yes, larger than 5'
             };
         },
-        timeup: function() {
+        timeup: function () {
             node.game.guess.setValues();
             node.done();
         }
@@ -248,10 +248,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         frame: 'game.htm',
-        cb: function() {
+        cb: function () {
             node.game.visualTimer.setToZero();
             // Ask for the outcome to server.
-            node.get('result', function(data) {
+            node.get('result', function (data) {
                 // Display information to screen.
                 W.setInnerHTML('yourdecision', data.greater ?
                     'Greater than 5' : 'Smaller than or equal to 5');
@@ -267,7 +267,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         widget: 'EndScreen',
-        init: function() {
+        init: function () {
             node.game.visualTimer.destroy();
             node.game.doneButton.destroy();
         }
