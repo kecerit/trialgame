@@ -1,12 +1,10 @@
 
 
-(function(node) {  // Self-executing function for encapsulation.
-
-    // Register the widget in the widgets collection
-    // (will be stored at node.widgets.widgets).
+(function(node) {
+    
     node.widgets.register('DropDown', DropDown);
 
-    // Add Meta-data.
+    // Meta-data.
 
     DropDown.version = '0.1.0';
     DropDown.description = 'Creates a configurable dropdown menu.';
