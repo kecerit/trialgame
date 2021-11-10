@@ -503,11 +503,11 @@
                 this.menu = select;
             }
         }
-        let len = choices.length;
+        var len = choices.length;
         order = J.seq(0, len - 1);
         if (this.shuffleChoices) order = J.shuffle(order);
 
-        for (let i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
 
             option = W.get('option');
             option.value = choices[order[i]];
