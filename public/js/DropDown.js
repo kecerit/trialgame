@@ -29,12 +29,8 @@
         }
     };
 
-    DropDown.sounds = {
-        // Sounds here (if any).
-    };
-
     // Title is displayed in the header.
-    DropDown.title = '';
+    DropDown.title = false;
     // Classname is added to the widgets.
     DropDown.className = 'dropdown';
 
