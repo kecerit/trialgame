@@ -169,7 +169,6 @@
          */
         this.numberOfChanges = 0;
 
-
         /**
          * ### DropDown.currentChoice
          *
@@ -178,7 +177,6 @@
          * The field is a  number.
          */
         this.currentChoice = null;
-
 
         /**
          * ###  DropDown.shuffleChoices
