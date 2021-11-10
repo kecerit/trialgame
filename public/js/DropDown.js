@@ -9,20 +9,16 @@
     // Add Meta-data.
 
     DropDown.version = '0.1.0';
-    DropDown.description = 'This widget creates a basic dropdown menu.';
+    DropDown.description = 'Creates a configurable dropdown menu.';
 
     DropDown.texts = {
         // Texts here (more info on this later).
         error: function (w, value) {
             if (value !== null && w.fixedChoice &&
                 w.choices.indexOf(value) < 0) {
-                return 'Please select one from the provided options.'
+                return 'No custom values allowed.'
             }
-            if (value !== null &&
-                ('number' === typeof w.correctChoice ||
-                    'string' === typeof w.correctChoice ||
-                    J.isArray(w.correctChoice))) {
-
+            if (value !== null && w.correctChoice !== null) {
                 return 'Not correct, try again.';
             }
             if (value !== null && w.verifyChoice().err) {
