@@ -89,27 +89,17 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
                         correctChoice: 0
                     },
                     {
-                        name: 'DropDown',
-                        id: 'State',
-                        mainText: "Please fill in the sentence below.",
-                        labelText: 'I am currently living in:  ',
-                        choices: ["Baden-Württemberg", "Bavaria", "Berlin",
-                            "Hesse"],
-                        onchange: function (value) {
-                            W.setInnerHTML('p', "You are currtently living in " + value + ".");
+                        name: 'ChoiceTable',
+                        id: 'gender',
+                        mainText: 'What is your gender?',
+                        choices: ['Male', 'Female'],
+                        other: {
+                          id: 'othergender',
+                          mainText: 'Please name your gender.',
+                          width: '95%'
                         },
-                        validation: function (value, obj) {
-                            if (value.length > 10) {
-                                obj.value = false;
-                                obj.err = 'You selected an item that is too long.';
-                            }
-                        },
-                        shuffleChoices: true,
-                        placeHolder: "Choose a State",
-                        requiredChoice: true,
-                        fixedChoice: true,
-
-                    },
+                        requiredChoice: true
+                      },
                     {
                         name: 'ChoiceTable',
                         id: 'coins',
@@ -137,28 +127,15 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'State',
+            name: 'ChoiceTable',
+            id: 'gender1',
             options: {
-                id: 'State',
-                mainText: "Please fill in the sentence below.",
-                labelText: 'I am currently living in:  ',
-                choices: ["Baden-Württemberg", "Bavaria", "Berlin",
-                    "Hesse"],
-                onChange: function () {
-                    var x = W.getElementById('State').value;
-                    W.setInnerHTML('Statep', "You are currtently living in " + x + ".");
-                },
-                shuffleChoices: true,
-                placeHolder: "Choose a state",
-                requiredChoice: true,
-                width: "100%"
-            },
-            done: function (values) {
-                node.game.State = values.forms.State.value;
-            },
-
-        }
+              id: 'gender1',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: true
+               }
+            }
     });
 
     stager.extendStep('DD2', {
@@ -167,27 +144,15 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'City',
+            name: 'ChoiceTable',
+            id: 'gender2',
             options: {
-                id: 'City',
-                mainText: "Please fill in the sentence below.",
-                labelText: 'I am currently living in:  ',
-                choices: ["Stuttgart ", "Frankfurt am Main", "Coburg",
-                    "Erlangen", "Schweinfurt", "Mannheim", "Heidelberg"],
-                onChange: function () {
-                    var x = W.getElementById('City').value;
-                    W.setInnerHTML('Cityp', "You are currtently living in " + x + ".")
-                },
-                tag: "select",
-                shuffleChoices: true,
-                correctChoice: [0, 3]
-            },
-            done: function (values) {
-                node.game.City = values.forms.City.value;
-            },
-
-        }
+              id: 'gender2',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: 'CustomInput'
+               }
+            }
     });
 
     stager.extendStep('DD3', {
@@ -196,24 +161,19 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'Travel',
+            name: 'ChoiceTable',
+            id: 'gender3',
             options: {
-                id: 'Travel',
-                labelText: 'I mostly travel with a : ',
-                choices: ["Train", "Bus", "Car", "Plane", "Other"],
-                onChange: function () {
-                    var x = W.getElementById('Travel').value;
-                    W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
-                },
-                tag: "datalist",
-                correctChoice: 0
-            },
-            done: function (values) {
-                node.game.Travel = values.forms.Travel.value;
-            },
-
-        }
+              id: 'gender3',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: {
+                id: 'othergender',
+                mainText: 'Please name your gender.',
+                width: '95%'
+              }
+               }
+            }
     });
 
     stager.extendStep('guess', {
