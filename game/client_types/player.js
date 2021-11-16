@@ -89,7 +89,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
                         correctChoice: 0
                     },
                     {
-                        name: 'DropDown',
+                        name: 'Dropdown',
                         id: 'State',
                         mainText: "Please fill in the sentence below.",
                         labelText: 'I am currently living in:  ',
@@ -137,7 +137,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
+            name: 'Dropdown',
             id: 'State',
             options: {
                 id: 'State',
@@ -167,7 +167,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
+            name: 'Dropdown',
             id: 'City',
             options: {
                 id: 'City',
@@ -196,7 +196,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
+            name: 'Dropdown',
             id: 'Travel',
             options: {
                 id: 'Travel',
