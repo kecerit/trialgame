@@ -1398,7 +1398,7 @@
             this.bodyDiv.appendChild(this.table);
         }
 
-        this.setCustomInput(this.other);
+        this.setCustomInput(this.other, this.bodyDiv);
 
         this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
 
@@ -1419,14 +1419,10 @@
     /**
      * ### ChoiceTable.setCustomInput
      *
-     * Set the error msg inside the errorBox and call highlight
+     * Set Custom Input widget.
      *
-     * @param {string} The error msg (can contain HTML)
-     *
-     * @see ChoiceTable.highlight
-     * @see ChoiceTable.errorBox
      */
-    ChoiceTable.prototype.setCustomInput = function(other) {
+    ChoiceTable.prototype.setCustomInput = function(other, root) {
 
 
         if (other === null || 'boolean' === typeof other) return;
@@ -1443,7 +1439,7 @@
 
         other.hidden = true;
 
-        this.customInput = node.widgets.append('CustomInput', this.bodyDiv, other);
+        this.customInput = node.widgets.append('CustomInput', root, other);
 
     };
 
