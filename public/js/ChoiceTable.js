@@ -220,6 +220,12 @@
             // Remove any warning/errors on click.
             if (that.isHighlighted()) that.unhighlight();
 
+            len = that.choices.length;
+            if (that.customInput) {
+            if (value === len - 1) that.customInput.show();
+            else that.customInput.hide();
+            }
+
             // Call onclick, if any.
             if (that.onclick) {
                 // TODO: Should we parseInt it anyway when we store
@@ -560,6 +566,25 @@
         * If TRUE, cells have same width regardless of content
         */
         this.sameWidthCells = true;
+
+        /**
+        * ### ChoiceTable.other
+        *
+        * If TRUE, adds an "Other" choice as last choice.
+        * If 'CustomInput',  adds "Other" choice AND a CustomInput widget under
+        * the choicetable (initially hidden).
+        * If { ... },  ads "Other" choice AND adds a CustomInput widget
+        *with configuration options specified in that object.
+        */
+        this.other = null;
+
+        /**
+        * ### ChoiceTable.customInput
+        *
+        * customInput widget.
+        * @see ChoiceTable.other
+        */
+        this.customInput = null;
     }
 
     // ## ChoiceTable methods
@@ -892,6 +917,11 @@
             this.choicesSetSize = opts.choicesSetSize;
         }
 
+        // Add other.
+        if ('undefined' !== typeof opts.other) {
+            this.other = opts.other;
+        }
+
         // Add the choices.
         if ('undefined' !== typeof opts.choices) {
             this.setChoices(opts.choices);
@@ -985,6 +1015,12 @@
         // Save the order in which the choices will be added.
         this.order = J.seq(0, len-1);
         if (this.shuffleChoices) this.order = J.shuffle(this.order);
+
+        if (this.other) {
+          this.choices[len] = 'Other';
+          this.order[len] = len
+
+        }
 
         // Build the table and choices at once (faster).
         if (this.table) this.buildTableAndChoices();
@@ -1362,8 +1398,9 @@
             this.bodyDiv.appendChild(this.table);
         }
 
-        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
+        this.setCustomInput(this.other);
 
+        this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
 
         // Creates a free-text textarea, possibly with placeholder text.
         if (this.freeText) {
@@ -1377,6 +1414,37 @@
             // Append textarea.
             this.bodyDiv.appendChild(this.textarea);
         }
+    };
+
+    /**
+     * ### ChoiceTable.setCustomInput
+     *
+     * Set the error msg inside the errorBox and call highlight
+     *
+     * @param {string} The error msg (can contain HTML)
+     *
+     * @see ChoiceTable.highlight
+     * @see ChoiceTable.errorBox
+     */
+    ChoiceTable.prototype.setCustomInput = function(other) {
+
+
+        if (other === null || 'boolean' === typeof other) return;
+
+        if ('CustomInput' === other) {
+
+          other = {
+            id: 'other' + this.id,
+            mainText: this.mainText,
+            requiredChoice: this.requiredChoice
+          }
+
+        }
+
+        other.hidden = true;
+
+        this.customInput = node.widgets.append('CustomInput', this.bodyDiv, other);
+
     };
 
     /**
