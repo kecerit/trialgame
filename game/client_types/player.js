@@ -69,8 +69,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             W.cssRule('table.choicetable td { text-align: left !important; ' +
                       'font-weight: normal; padding-left: 10px; }');
-
-            W.cssRule('.panel-body { border: 0; }');
         },
 
         // Make a widget step.
@@ -81,36 +79,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 mainText: 'Answer the following questions to check ' +
                           'your understanding of the game.',
                 forms: [
-                       {
+                    {
                         name: 'ChoiceTable',
                         id: 'howmany',
                         mainText: 'How many players are there in this game? ',
                         choices: [ 1, 2, 3 ],
                         correctChoice: 0
+                    },
+                    {
+                        name: 'ChoiceTable',
+                        id: 'gender',
+                        mainText: 'What is your gender?',
+                        choices: ['Male', 'Female'],
+                        other: {
+                          id: 'othergender',
+                          mainText: 'Please name your gender.',
+                          width: '95%'
+                        },
+                        requiredChoice: true
                       },
-                      {
-                       name: 'DropDown',
-                       id: 'State',
-                       mainText: "Please fill in the sentence below.",
-                       labelText: 'I am currently living in:  ',
-                       choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
-                                   "Hesse"],
-                       onchange: function (value) {
-                       W.setInnerHTML('p', "You are currtently living in " + value +".");
-                       },
-                       validation: function(value, obj) {
-                         if (value.length > 10) {
-                           obj.value = false;
-                           obj.err = 'You selected an item that is too long.';
-                         }
-                       },
-                       shuffleChoices: true,
-                       placeHolder: "Choose a State",
-                       requiredChoice: true,
-                       fixedChoice: true,
-
-                     },
-                      {
+                    {
                         name: 'ChoiceTable',
                         id: 'coins',
                         mainText: 'How many coins can you win in each round?',
@@ -137,27 +125,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'State',
+            name: 'ChoiceTable',
+            id: 'gender2',
             options: {
-                id: 'State',
-                mainText: "Please fill in the sentence below.",
-                labelText: 'I am currently living in:  ',
-                choices: [ "Baden-Württemberg", "Bavaria", "Berlin",
-                            "Hesse"],
-                onChange: function () {
-                var x = W.getElementById('State').value;
-                W.setInnerHTML('Statep', "You are currtently living in " + x +".");
-              },
-                shuffleChoices: true,
-                placeHolder: "Choose a state",
-                requiredChoice: true,
-                width: "100%"
-               },
-               done: function(values) {
-                   node.game.State = values.forms.State.value;
-               },
-
+              id: 'gender',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: true
+               }
             }
     });
 
@@ -167,26 +142,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'City',
+            name: 'ChoiceTable',
+            id: 'gender2',
             options: {
-                id: 'City',
-                mainText: "Please fill in the sentence below.",
-                labelText: 'I am currently living in:  ',
-                choices: [ "Stuttgart ", "Frankfurt am Main", "Coburg",
-                 "Erlangen", "Schweinfurt", "Mannheim", "Heidelberg"],
-                onChange: function () {
-                var x = W.getElementById('City').value;
-                W.setInnerHTML('Cityp', "You are currtently living in " + x +".")
-               },
-               tag: "select",
-               shuffleChoices: true,
-               correctChoice: [0,3]
-               },
-               done: function(values) {
-                   node.game.City = values.forms.City.value;
-               },
-
+              id: 'gender',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: 'CustomInput'
+               }
             }
     });
 
@@ -196,23 +159,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         },
         widget: {
-            name: 'DropDown',
-            id: 'Travel',
+            name: 'ChoiceTable',
+            id: 'gender2',
             options: {
-                id: 'Travel',
-                labelText: 'I mostly travel with a : ',
-                choices: [ "Train", "Bus", "Car","Plane","Other"],
-                onChange: function () {
-                var x = W.getElementById('Travel').value;
-                W.setInnerHTML('Travelp', "The best way to travel is by a " + x);
-                },
-               tag: "datalist",
-               correctChoice: 0
-               },
-               done: function(values) {
-                   node.game.Travel = values.forms.Travel.value;
-               },
-
+              id: 'gender',
+              mainText: 'What is your gender?',
+              choices: ['Male', 'Female'],
+              other: {
+                id: 'othergender',
+                mainText: 'Please name your gender.',
+                width: '95%'
+              }
+               }
             }
     });
 
@@ -249,6 +207,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('results', {
         frame: 'game.htm',
         cb: function() {
+            // (re-) Hide the results div.
+            W.hide('results');
             node.game.visualTimer.setToZero();
             // Ask for the outcome to server.
             node.get('result', function(data) {
@@ -257,6 +217,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     'Greater than 5' : 'Smaller than or equal to 5');
                 W.setInnerHTML('randomnumber', data.randomnumber);
                 W.setInnerHTML('winlose', data.win ? 'You won!' : 'You lost!');
+                // Show the results div.
+                W.show('results');
                 // Leave the decision visible for up 5 seconds.
                 // If user clicks Done, it can advance faster.
                 node.game.visualTimer.restart(5000);
@@ -266,7 +228,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('end', {
-        widget: 'EndScreen',
+        widget: {
+            name: 'EndScreen',
+            options: { askServer: true }
+        },
         init: function() {
             node.game.visualTimer.destroy();
             node.game.doneButton.destroy();
