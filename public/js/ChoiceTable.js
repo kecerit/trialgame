@@ -65,7 +65,8 @@
                 return 'Not correct, try again.';
             }
             return 'Selection required.';
-        }
+        },
+        other: 'Other'
         // correct: 'Correct.'
     };
 
@@ -1019,7 +1020,7 @@
         if (this.shuffleChoices) this.order = J.shuffle(this.order);
 
         if (this.other) {
-          this.choices[len] = 'Other';
+          this.choices[len] = this.getText('other');
           this.order[len] = len
 
         }
