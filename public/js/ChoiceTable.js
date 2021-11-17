@@ -166,6 +166,12 @@
             // One more click.
             that.numberOfClicks++;
 
+            len = that.choices.length;
+            if (that.customInput) {
+            if (value === len - 1 && !that.isChoiceCurrent(value)) that.customInput.show();
+            else that.customInput.hide();
+            }
+
             // Click on an already selected choice.
             if (that.isChoiceCurrent(value)) {
                 that.unsetCurrentChoice(value);
@@ -220,11 +226,7 @@
             // Remove any warning/errors on click.
             if (that.isHighlighted()) that.unhighlight();
 
-            len = that.choices.length;
-            if (that.customInput) {
-            if (value === len - 1) that.customInput.show();
-            else that.customInput.hide();
-            }
+
 
             // Call onclick, if any.
             if (that.onclick) {
