@@ -922,7 +922,11 @@
 
         // Add other.
         if ('undefined' !== typeof opts.other) {
-            this.other = opts.other;
+          if ('undefined' !== typeof opts.correctChoice) {
+              throw new Error('ChoiceTable.init: cannot specify both ' +
+                              'opts other and correctChoice');
+          }
+          this.other = opts.other;
         }
 
         // Add the choices.
@@ -1404,7 +1408,7 @@
         this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
 
         this.setCustomInput(this.other, this.bodyDiv);
-        
+
         // Creates a free-text textarea, possibly with placeholder text.
         if (this.freeText) {
             this.textarea = document.createElement('textarea');
