@@ -170,6 +170,8 @@
             len = that.choices.length;
             if (that.customInput) {
             if (value === len - 1 && !that.isChoiceCurrent(value)) that.customInput.show();
+            else if (that.selectMultiple && !that.customInput.isHidden() &&
+            value !== len - 1) that.customInput.show();
             else that.customInput.hide();
             }
 
@@ -226,8 +228,6 @@
 
             // Remove any warning/errors on click.
             if (that.isHighlighted()) that.unhighlight();
-
-
 
             // Call onclick, if any.
             if (that.onclick) {
@@ -1401,10 +1401,10 @@
             this.bodyDiv.appendChild(this.table);
         }
 
-        this.setCustomInput(this.other, this.bodyDiv);
-
         this.errorBox = W.append('div', this.bodyDiv, { className: 'errbox' });
 
+        this.setCustomInput(this.other, this.bodyDiv);
+        
         // Creates a free-text textarea, possibly with placeholder text.
         if (this.freeText) {
             this.textarea = document.createElement('textarea');
@@ -1439,6 +1439,10 @@
           }
 
         }
+        // default options for customInput
+        if ('undefined' === typeof other.id) other.id = 'other' + this.id;
+        if ('undefined' === typeof other.mainText) other.mainText = this.mainText;
+        if ('undefined' === typeof other.requiredChoice) other.requiredChoice = this.requiredChoice;
 
         other.hidden = true;
 
@@ -1545,6 +1549,11 @@
     ChoiceTable.prototype.verifyChoice = function(markAttempt) {
         var i, len, j, lenJ, c, clone, found;
         var correctChoice;
+
+
+        if (this.customInput && !this.customInput.isHidden()) {
+          return this.customInput.getValues().isCorrect;
+        }
 
         // Check the number of choices.
         if (this.requiredChoice !== null) {
@@ -1751,6 +1760,8 @@
      */
     ChoiceTable.prototype.getValues = function(opts) {
         var obj, resetOpts, i, len;
+        var that;
+        that = this;
         opts = opts || {};
         obj = {
             id: this.id,
@@ -1768,20 +1779,20 @@
         // Option getValue backward compatible.
         if (opts.addValue !== false && opts.getValue !== false) {
             if (!this.selectMultiple) {
-                obj.value = getValueFromChoice(this.choices[obj.choice]);
+                obj.value = getValueFromChoice(that,this.choices[obj.choice]);
             }
             else {
                 len = obj.choice.length;
                 obj.value = new Array(len);
                 if (len === 1) {
                     obj.value[0] =
-                        getValueFromChoice(this.choices[obj.choice[0]]);
+                        getValueFromChoice(that,this.choices[obj.choice[0]]);
                 }
                 else {
                     i = -1;
                     for ( ; ++i < len ; ) {
                         obj.value[i] =
-                            getValueFromChoice(this.choices[obj.choice[i]]);
+                            getValueFromChoice(that,this.choices[obj.choice[i]]);
                     }
                     if (opts.sortValue !== false) obj.value.sort();
                 }
@@ -1794,14 +1805,21 @@
         if (this.groupOrder === 0 || this.groupOrder) {
             obj.groupOrder = this.groupOrder;
         }
-        if (null !== this.correctChoice || null !== this.requiredChoice) {
+        if (null !== this.correctChoice || null !== this.requiredChoice ||
+            (this.customInput && !this.customInput.isHidden())) {
             obj.isCorrect = this.verifyChoice(opts.markAttempt);
             obj.attempts = this.attempts;
             if (!obj.isCorrect && opts.highlight) this.highlight();
         }
         if (this.textarea) obj.freetext = this.textarea.value;
         if (obj.isCorrect === false) {
-            this.setError(this.getText('error', obj.value));
+          // if isCorrect is false because of customInput, unhighlight ChoiceTable
+            if (this.customInput &&
+               !this.customInput.getValues().isCorrect &&
+               !this.customInput.isHidden()) {
+                this.unhighlight();
+              }
+              else this.setError(this.getText('error', obj.value));
         }
         else if (opts.reset) {
             resetOpts = 'object' !== typeof opts.reset ? {} : opts.reset;
@@ -2089,7 +2107,11 @@
      * @see ChoiceTable.getValues
      * @see ChoiceTable.renderChoice
      */
-    function getValueFromChoice(choice, display) {
+    function getValueFromChoice(that, choice, display) {
+        // if exists, get the value of the customInput
+        if (choice === that.getText('other') && that.customInput) {
+          return that.customInput.getValues().value;
+        }
         if ('string' === typeof choice || 'number' === typeof choice) {
             return choice;
         }
