@@ -1516,6 +1516,7 @@
             // Remove listener to make cells clickable with the keyboard.
             if (this.tabbable) J.makeClickable(this.table, false);
         }
+        if (this.customInput) this.customInput.disable();
         this.emit('disabled');
     };
 
@@ -1536,6 +1537,7 @@
         this.table.addEventListener('click', this.listener);
         // Add listener to make cells clickable with the keyboard.
         if (this.tabbable) J.makeClickable(this.table);
+        if (this.customInput) this.customInput.enable();
         this.emit('enabled');
     };
 
