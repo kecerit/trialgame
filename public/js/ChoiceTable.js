@@ -1458,7 +1458,7 @@
         if ('undefined' === typeof other.requiredChoice) {
           other.requiredChoice = required;
         }
-        
+
         other.hidden = true;
         this.customInput = node.widgets.append('CustomInput', root, other);
 
@@ -2012,6 +2012,7 @@
         if (this.isHighlighted()) this.unhighlight();
 
         if (options.shuffleChoices) this.shuffle();
+        if (this.customInput) this.customInput.reset();
     };
 
     /**
@@ -2026,7 +2027,14 @@
         var parentTR;
 
         H = this.orientation === 'H';
-        order = J.shuffle(this.order);
+        if (this.other) {
+            len = this.order.length;
+            order = J.shuffle(this.order.slice(0,-1));
+            order.push(this.order[len - 1]);
+        }
+        else {
+            order = J.shuffle(this.order);
+        }
         i = -1, len = order.length;
         choicesValues = {};
         choicesCells = new Array(len);
