@@ -66,7 +66,8 @@
             }
             return 'Selection required.';
         },
-        other: 'Other'
+        other: 'Other',
+        otherText: 'Please specify.'
         // correct: 'Correct.'
     };
 
@@ -168,11 +169,19 @@
             that.numberOfClicks++;
 
             len = that.choices.length;
+
             if (that.customInput) {
-            if (value === len - 1 && !that.isChoiceCurrent(value)) that.customInput.show();
-            else if (that.selectMultiple && !that.customInput.isHidden() &&
-            value !== len - 1) that.customInput.show();
-            else that.customInput.hide();
+                var other = value === len - 1;
+                var hidden = that.customInput.isHidden();
+                if (other && !that.isChoiceCurrent(value)) {
+                    that.customInput.show();
+                }
+                else if (that.selectMultiple && !hidden && !other) {
+                    that.customInput.show();
+                }
+                else {
+                    that.customInput.hide();
+                }
             }
 
             // Click on an already selected choice.
@@ -922,10 +931,6 @@
 
         // Add other.
         if ('undefined' !== typeof opts.other) {
-          if ('undefined' !== typeof opts.correctChoice) {
-              throw new Error('ChoiceTable.init: cannot specify both ' +
-                              'opts other and correctChoice');
-          }
           this.other = opts.other;
         }
 
@@ -1434,22 +1439,27 @@
 
         if (other === null || 'boolean' === typeof other) return;
 
+        var required = this.requiredChoice;
+        var text = this.getText('otherText');
+        var id = 'other' + this.id;
+
         if ('CustomInput' === other) {
 
           other = {
-            id: 'other' + this.id,
-            mainText: this.mainText,
-            requiredChoice: this.requiredChoice
+            id: id,
+            mainText: text,
+            requiredChoice: required
           }
 
         }
-        // default options for customInput
-        if ('undefined' === typeof other.id) other.id = 'other' + this.id;
-        if ('undefined' === typeof other.mainText) other.mainText = this.mainText;
-        if ('undefined' === typeof other.requiredChoice) other.requiredChoice = this.requiredChoice;
 
+        if ('undefined' === typeof other.id) other.id = id;
+        if ('undefined' === typeof other.mainText) other.mainText = text;
+        if ('undefined' === typeof other.requiredChoice) {
+          other.requiredChoice = required;
+        }
+        
         other.hidden = true;
-
         this.customInput = node.widgets.append('CustomInput', root, other);
 
     };
@@ -1554,50 +1564,59 @@
         var i, len, j, lenJ, c, clone, found;
         var correctChoice;
 
-
-        if (this.customInput && !this.customInput.isHidden()) {
-          return this.customInput.getValues().isCorrect;
-        }
-
-        // Check the number of choices.
-        if (this.requiredChoice !== null) {
-            if (!this.selectMultiple) return this.currentChoice !== null;
-            else return this.currentChoice.length >= this.requiredChoice;
-        }
-
-        // If no correct choice is set return null.
-        if ('undefined' === typeof this.correctChoice) return null;
-        // Mark attempt by default.
-        markAttempt = 'undefined' === typeof markAttempt ? true : markAttempt;
-        if (markAttempt) this.attempts.push(this.currentChoice);
-        if (!this.selectMultiple) {
-            return this.currentChoice === this.correctChoice;
+        if (this.correctChoice === null) {
+          if (this.customInput && !this.customInput.isHidden()) {
+              return this.customInput.getValues().isCorrect;
+          }
+          // Check the number of choices.
+          if (this.requiredChoice !== null) {
+              if (!this.selectMultiple) return this.currentChoice !== null;
+              else return this.currentChoice.length >= this.requiredChoice;
+          }
+          // If no correct choice is set return null.
+          if ('undefined' === typeof this.correctChoice) return null;
         }
         else {
-            // Make it an array (can be a string).
-            correctChoice = J.isArray(this.correctChoice) ?
-                this.correctChoice : [this.correctChoice];
+          // Mark attempt by default.
+          markAttempt = 'undefined' === typeof markAttempt ? true : markAttempt;
+          if (markAttempt) this.attempts.push(this.currentChoice);
+          if (this.customInput && !this.customInput.isHidden()) {
+              var correctCustom = this.customInput.getValues().isCorrect;
+          }
+          if (!this.selectMultiple) {
+              var correct = this.currentChoice === this.correctChoice;
+              if (correct && 'undefined' !== typeof correctCustom) {
+                  return correctCustom;
+              }
+              return correct;
+          }
+          else {
+              // Make it an array (can be a string).
+              correctChoice = J.isArray(this.correctChoice) ?
+                  this.correctChoice : [this.correctChoice];
 
-            len = correctChoice.length;
-            lenJ = this.currentChoice.length;
-            // Quick check.
-            if (len !== lenJ) return false;
-            // Check every item.
-            i = -1;
-            clone = this.currentChoice.slice(0);
-            for ( ; ++i < len ; ) {
-                found = false;
-                c = correctChoice[i];
-                j = -1;
-                for ( ; ++j < lenJ ; ) {
-                    if (clone[j] === c) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) return false;
-            }
-            return true;
+              len = correctChoice.length;
+              lenJ = this.currentChoice.length;
+              // Quick check.
+              if (len !== lenJ) return false;
+              // Check every item.
+              i = -1;
+              clone = this.currentChoice.slice(0);
+              for ( ; ++i < len ; ) {
+                  found = false;
+                  c = correctChoice[i];
+                  j = -1;
+                  for ( ; ++j < lenJ ; ) {
+                      if (clone[j] === c) {
+                          found = true;
+                          break;
+                      }
+                  }
+                  if (!found) return false;
+              }
+              if ('undefined' !== typeof correctCustom) return correctCustom;
+              return true;
+          }
         }
     };
 
@@ -1817,17 +1836,21 @@
         }
         if (this.textarea) obj.freetext = this.textarea.value;
         if (obj.isCorrect === false) {
-          // if isCorrect is false because of customInput, unhighlight ChoiceTable
-            if (this.customInput &&
-               !this.customInput.getValues().isCorrect &&
-               !this.customInput.isHidden()) {
+            if (this.customInput) {
+                var hidden = this.customInput.isHidden();
+                var correct = this.customInput.getValues().isCorrect;
+            }
+
+            if (this.customInput && !correct && !hidden) {
                 this.unhighlight();
-              }
-              else this.setError(this.getText('error', obj.value));
+            }
+            else {
+                this.setError(this.getText('error', obj.value));
+            }
         }
         else if (opts.reset) {
-            resetOpts = 'object' !== typeof opts.reset ? {} : opts.reset;
-            this.reset(resetOpts);
+             resetOpts = 'object' !== typeof opts.reset ? {} : opts.reset;
+             this.reset(resetOpts);
         }
         return obj;
     };
@@ -2112,7 +2135,6 @@
      * @see ChoiceTable.renderChoice
      */
     function getValueFromChoice(that, choice, display) {
-        // if exists, get the value of the customInput
         if (choice === that.getText('other') && that.customInput) {
           return that.customInput.getValues().value;
         }
