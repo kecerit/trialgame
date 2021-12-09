@@ -1975,7 +1975,7 @@
         // Make a random comment.
         if (this.textarea) this.textarea.value = J.randomString(100, '!Aa0');
         if (this.custominput && !this.custominput.isHidden()) {
-            this.custominput.setValues({value: 'xxx'});
+            this.custominput.setValues();
         }
     };
 
