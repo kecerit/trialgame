@@ -122,8 +122,8 @@
          * @see ChoiceTable.onclick
          */
         this.listener = function(e) {
-            var name, value, td, tr;
-            var i, len, removed;
+            var name, value, td;
+            var i, len, removed, other;
 
             e = e || window.event;
             td = e.target || e.srcElement;
@@ -171,16 +171,13 @@
             len = that.choices.length;
 
             if (that.customInput) {
-                var other = value === len - 1;
-                var hidden = that.customInput.isHidden();
-                if (other && !that.isChoiceCurrent(value)) {
-                    that.customInput.show();
-                }
-                else if (that.selectMultiple && !hidden && !other) {
-                    that.customInput.show();
+                // Is "Other" currently selected?
+                other = value === (len - 1);
+                if (that.customInput.isHidden()) {
+                    if (other) that.customInput.show();
                 }
                 else {
-                    that.customInput.hide();
+                    if (other) that.customInput.hide();
                 }
             }
 
@@ -1031,7 +1028,6 @@
         if (this.other) {
           this.choices[len] = this.getText('other');
           this.order[len] = len
-
         }
 
         // Build the table and choices at once (faster).
@@ -1435,32 +1431,18 @@
      *
      */
     ChoiceTable.prototype.setCustomInput = function(other, root) {
-
-
+        var opts;
         if (other === null || 'boolean' === typeof other) return;
-
-        var required = this.requiredChoice;
-        var text = this.getText('otherText');
-        var id = 'other' + this.id;
-
-        if ('CustomInput' === other) {
-
-          other = {
-            id: id,
-            mainText: text,
-            requiredChoice: required
-          }
-
+        opts = {
+            id: 'other' + this.id,
+            mainText: this.getText('otherText'),
+            requiredChoice: this.requiredChoice
         }
-
-        if ('undefined' === typeof other.id) other.id = id;
-        if ('undefined' === typeof other.mainText) other.mainText = text;
-        if ('undefined' === typeof other.requiredChoice) {
-          other.requiredChoice = required;
-        }
-
-        other.hidden = true;
-        this.customInput = node.widgets.append('CustomInput', root, other);
+        // other can be either the string 'CustomInput' or a conf object.
+        if ('object' === typeof other) J.mixin(opts, other);
+        // Force initially hidden.
+        opts.hidden = true;
+        this.customInput = node.widgets.append('CustomInput', root, opts);
 
     };
 
@@ -1562,64 +1544,65 @@
      * @see ChoiceTable.attempts
      * @see ChoiceTable.setCorrectChoice
      */
-    ChoiceTable.prototype.verifyChoice = function(markAttempt) {
+     ChoiceTable.prototype.verifyChoice = function(markAttempt) {
         var i, len, j, lenJ, c, clone, found;
-        var correctChoice;
+        var correctChoice, ci, ciCorrect;
 
-        if (this.correctChoice === null) {
-          if (this.customInput && !this.customInput.isHidden()) {
-              return this.customInput.getValues().isCorrect;
-          }
-          // Check the number of choices.
-          if (this.requiredChoice !== null) {
-              if (!this.selectMultiple) return this.currentChoice !== null;
-              else return this.currentChoice.length >= this.requiredChoice;
-          }
-          // If no correct choice is set return null.
-          if ('undefined' === typeof this.correctChoice) return null;
-        }
-        else {
-          // Mark attempt by default.
-          markAttempt = 'undefined' === typeof markAttempt ? true : markAttempt;
-          if (markAttempt) this.attempts.push(this.currentChoice);
-          if (this.customInput && !this.customInput.isHidden()) {
-              var correctCustom = this.customInput.getValues().isCorrect;
-          }
-          if (!this.selectMultiple) {
-              var correct = this.currentChoice === this.correctChoice;
-              if (correct && 'undefined' !== typeof correctCustom) {
-                  return correctCustom;
-              }
-              return correct;
-          }
-          else {
-              // Make it an array (can be a string).
-              correctChoice = J.isArray(this.correctChoice) ?
-                  this.correctChoice : [this.correctChoice];
+        // Mark attempt by default.
+        markAttempt = 'undefined' === typeof markAttempt ? true : markAttempt;
+        if (markAttempt) this.attempts.push(this.currentChoice);
 
-              len = correctChoice.length;
-              lenJ = this.currentChoice.length;
-              // Quick check.
-              if (len !== lenJ) return false;
-              // Check every item.
-              i = -1;
-              clone = this.currentChoice.slice(0);
-              for ( ; ++i < len ; ) {
-                  found = false;
-                  c = correctChoice[i];
-                  j = -1;
-                  for ( ; ++j < lenJ ; ) {
-                      if (clone[j] === c) {
-                          found = true;
-                          break;
-                      }
-                  }
-                  if (!found) return false;
-              }
-              if ('undefined' !== typeof correctCustom) return correctCustom;
-              return true;
-          }
+         // Custom input to check.
+         ci = this.customInput && !this.customInput.isHidden();
+         if (ci) {
+             ciCorrect = this.customInput.getValues({ 
+                 markAttempt: markAttempt
+             }).isCorrect;
+             if (ciCorrect === false) return false;
+             // Set it to null so it is returned correctly, later below.
+             if ('undefined' === typeof ciCorrect) ciCorrect = null;
+         };
+
+        // Check the number of choices.
+        if (this.requiredChoice !== null) {
+            if (!this.selectMultiple) return this.currentChoice !== null;
+            else return this.currentChoice.length >= this.requiredChoice;
         }
+
+        correctChoice = this.correctChoice;
+        // If no correct choice is set return null or ciCorrect (true|null).
+        if (null === correctChoice) return ci ? ciCorrect : null;
+
+        // Only one choice allowed, ci is correct,
+        // otherwise we would have returned already.
+        if (!this.selectMultiple) return this.currentChoice === correctChoice;
+        
+        // Multiple selections allowed.
+
+        // Make it an array (can be a string).
+        if (J.isArray(correctChoice)) correctChoice = [correctChoice];
+
+        len = correctChoice.length;
+        lenJ = this.currentChoice.length;
+        // Quick check.
+        if (len !== lenJ) return false;
+        // Check every item.
+        i = -1;
+        clone = this.currentChoice.slice(0);
+        for ( ; ++i < len ; ) {
+            found = false;
+            c = correctChoice[i];
+            j = -1;
+            for ( ; ++j < lenJ ; ) {
+                if (clone[j] === c) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        return true;
+        
     };
 
     /**
@@ -1725,18 +1708,26 @@
      *
      * Highlights the choice table
      *
-     * @param {string} The style for the table's border.
+     * @param {string|obj} opts Optional. If string is the 'border'
+     *   option for backward compatibilityThe style for the table's border.
      *   Default '3px solid red'
      *
      * @see ChoiceTable.highlighted
      */
-    ChoiceTable.prototype.highlight = function(border) {
+    ChoiceTable.prototype.highlight = function(opts) {
+        var border, ci;
+        opts = opts || {};
+        // Backward compatible.
+        if ('string' === typeof opts) opts = { border: opts };
+        border = opts.border;
         if (border && 'string' !== typeof border) {
             throw new TypeError('ChoiceTable.highlight: border must be ' +
                                 'string or undefined. Found: ' + border);
         }
         if (!this.table || this.highlighted) return;
         this.table.style.border = border || '3px solid red';
+        ci = this.customInput;
+        if (opts.customInput !== false && ci && !ci.isHidden()) ci.highlight();
         this.highlighted = true;
         this.emit('highlighted', border);
     };
@@ -1748,9 +1739,14 @@
      *
      * @see ChoiceTable.highlighted
      */
-    ChoiceTable.prototype.unhighlight = function() {
+    ChoiceTable.prototype.unhighlight = function(opts) {
+        var ci;
         if (!this.table || this.highlighted !== true) return;
         this.table.style.border = '';
+        ci = this.customInput;
+        if (opts.customInput !== false && ci && !ci.isHidden()) {
+            ci.unhighlight();
+        }
         this.highlighted = false;
         this.setError();
         this.emit('unhighlighted');
@@ -1784,8 +1780,9 @@
      * @see ChoiceTable.reset
      */
     ChoiceTable.prototype.getValues = function(opts) {
-        var obj, resetOpts, i, len;
+        var obj, resetOpts, i, len, ci, ciCorrect;
         var that;
+
         that = this;
         opts = opts || {};
         obj = {
@@ -1830,21 +1827,34 @@
         if (this.groupOrder === 0 || this.groupOrder) {
             obj.groupOrder = this.groupOrder;
         }
+
+        ci = this.customInput;
         if (null !== this.correctChoice || null !== this.requiredChoice ||
-            (this.customInput && !this.customInput.isHidden())) {
+            (ci && !ci.isHidden())) {
+
             obj.isCorrect = this.verifyChoice(opts.markAttempt);
             obj.attempts = this.attempts;
-            if (!obj.isCorrect && opts.highlight) this.highlight();
+            if (!obj.isCorrect && opts.highlight) this.highlight({
+                // If errored, it is already highlighted
+                customInput: false
+            });
         }
+        
         if (this.textarea) obj.freetext = this.textarea.value;
+        
         if (obj.isCorrect === false) {
-            if (this.customInput) {
-                var hidden = this.customInput.isHidden();
-                var correct = this.customInput.getValues().isCorrect;
+            // If there is an error on CI, we just highlight CI.
+            // However, there could be an error also on the choice table,
+            // e.g., not enough options selected. It will be catched 
+            // at next click.
+            // TODO: change verifyChoice to say where the error is coming from.
+            if (ci) {
+                ciCorrect = ci.getValues({
+                    markAttempt: false
+                }).isCorrect;
             }
-
-            if (this.customInput && !correct && !hidden) {
-                this.unhighlight();
+            if (ci && !ciCorrect && !ci.isHidden()) {
+                this.unhighlight({ customInput: false });
             }
             else {
                 this.setError(this.getText('error', obj.value));
@@ -2032,15 +2042,15 @@
         var parentTR;
 
         H = this.orientation === 'H';
+        len = this.order.length;
         if (this.other) {
-            len = this.order.length;
             order = J.shuffle(this.order.slice(0,-1));
             order.push(this.order[len - 1]);
         }
         else {
             order = J.shuffle(this.order);
         }
-        i = -1, len = order.length;
+        i = -1;
         choicesValues = {};
         choicesCells = new Array(len);
 

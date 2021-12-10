@@ -36,6 +36,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
         this.visualTimer = node.widgets.append('VisualTimer', header, {
             hidden: true // Initially hidden.
         });
+        this.backButton = node.widgets.append('BackButton', header, { acrossStages: true });
         this.doneButton = node.widgets.append('DoneButton', header);
 
         // No need to show the wait for other players screen in single-player
@@ -80,6 +81,7 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
             options: {
                 mainText: 'Answer the following questions to check ' +
                     'your understanding of the game.',
+                // oneByOne: true,
                 forms: [
                     {
                         name: 'ChoiceTable',
@@ -94,12 +96,12 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
                         mainText: 'What is your gender?',
                         choices: ['Male', 'Female'],
                         other: {
-                          id: 'othergender',
-                          mainText: 'Please name your gender.',
-                          width: '95%'
+                            id: 'othergender',
+                            //   mainText: 'Please name your gender.',
+                            width: '95%'
                         },
                         requiredChoice: true
-                      },
+                    },
                     {
                         name: 'ChoiceTable',
                         id: 'coins',
@@ -130,12 +132,12 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
             name: 'ChoiceTable',
             id: 'gender1',
             options: {
-              id: 'gender1',
-              mainText: 'What is your gender?',
-              choices: ['Male', 'Female'],
-              other: true
-               }
+                id: 'gender1',
+                mainText: 'What is your gender?',
+                choices: ['Male', 'Female'],
+                other: true
             }
+        }
     });
 
     stager.extendStep('DD2', {
@@ -147,12 +149,12 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
             name: 'ChoiceTable',
             id: 'gender2',
             options: {
-              id: 'gender2',
-              mainText: 'What is your gender?',
-              choices: ['Male', 'Female'],
-              other: 'CustomInput'
-               }
+                id: 'gender2',
+                mainText: 'What is your gender?',
+                choices: ['Male', 'Female'],
+                other: 'CustomInput'
             }
+        }
     });
 
     stager.extendStep('DD3', {
@@ -164,16 +166,16 @@ module.exports = function (treatmentName, settings, stager, setup, gameRoom) {
             name: 'ChoiceTable',
             id: 'gender3',
             options: {
-              id: 'gender3',
-              mainText: 'What is your gender?',
-              choices: ['Male', 'Female'],
-              other: {
-                id: 'othergender',
-                mainText: 'Please name your gender.',
-                width: '95%'
-              }
-               }
+                id: 'gender3',
+                mainText: 'What is your gender?',
+                choices: ['Male', 'Female'],
+                other: {
+                    id: 'othergender',
+                    mainText: 'Please name your gender.',
+                    width: '95%'
+                }
             }
+        }
     });
 
     stager.extendStep('guess', {
