@@ -9,7 +9,7 @@
  *
  * www.nodegame.org
  */
-(function(node) {
+ (function(node) {
 
     "use strict";
 
@@ -17,7 +17,7 @@
 
     // ## Meta-data
 
-    ChoiceTable.version = '1.8.1';
+    ChoiceTable.version = '1.9.0';
     ChoiceTable.description = 'Creates a configurable table where ' +
         'each cell is a selectable choice.';
 
@@ -57,6 +57,7 @@
             if (w.requiredChoice) res += ' *';
             return res;
         },
+
         error: function(w, value) {
             if (value !== null &&
                 ('number' === typeof w.correctChoice ||
@@ -66,18 +67,14 @@
             }
             return 'Selection required.';
         },
+
         other: 'Other',
-        otherText: 'Please specify.'
-        // correct: 'Correct.'
+
+        customInput: 'Please specify.'
+
     };
 
     ChoiceTable.separator = '::';
-
-    // ## Dependencies
-
-    ChoiceTable.dependencies = {
-        JSUS: {}
-    };
 
     /**
      * ## ChoiceTable constructor
@@ -579,21 +576,28 @@
         /**
         * ### ChoiceTable.other
         *
-        * If TRUE, adds an "Other" choice as last choice.
-        * If 'CustomInput',  adds "Other" choice AND a CustomInput widget under
-        * the choicetable (initially hidden).
-        * If { ... },  ads "Other" choice AND adds a CustomInput widget
-        *with configuration options specified in that object.
+        * If TRUE, adds an "Other" choice as last choice
+        *
+        * Accepted values:
+        * - true: adds "Other" choice as last choice.
+        * - 'CustomInput':  adds "Other" choice AND a CustomInput widget below
+        *   the choicetable (initially hidden).
+        * - object: as previous, but it also allows for custom options for the
+        *   custom input
+        *
+        * @see ChoiceTable.customInput
         */
         this.other = null;
 
         /**
         * ### ChoiceTable.customInput
         *
-        * customInput widget.
+        * The customInput widget
+        *
         * @see ChoiceTable.other
         */
         this.customInput = null;
+
     }
 
     // ## ChoiceTable methods
@@ -1435,10 +1439,10 @@
         if (other === null || 'boolean' === typeof other) return;
         opts = {
             id: 'other' + this.id,
-            mainText: this.getText('otherText'),
+            mainText: this.getText('customInput'),
             requiredChoice: this.requiredChoice
         }
-        // other can be either the string 'CustomInput' or a conf object.
+        // other is the string 'CustomInput' or a conf object.
         if ('object' === typeof other) J.mixin(opts, other);
         // Force initially hidden.
         opts.hidden = true;
@@ -1555,7 +1559,7 @@
          // Custom input to check.
          ci = this.customInput && !this.customInput.isHidden();
          if (ci) {
-             ciCorrect = this.customInput.getValues({ 
+             ciCorrect = this.customInput.getValues({
                  markAttempt: markAttempt
              }).isCorrect;
              if (ciCorrect === false) return false;
@@ -1576,7 +1580,7 @@
         // Only one choice allowed, ci is correct,
         // otherwise we would have returned already.
         if (!this.selectMultiple) return this.currentChoice === correctChoice;
-        
+
         // Multiple selections allowed.
 
         // Make it an array (can be a string).
@@ -1602,7 +1606,7 @@
             if (!found) return false;
         }
         return true;
-        
+
     };
 
     /**
@@ -1839,13 +1843,13 @@
                 customInput: false
             });
         }
-        
+
         if (this.textarea) obj.freetext = this.textarea.value;
-        
+
         if (obj.isCorrect === false) {
             // If there is an error on CI, we just highlight CI.
             // However, there could be an error also on the choice table,
-            // e.g., not enough options selected. It will be catched 
+            // e.g., not enough options selected. It will be catched
             // at next click.
             // TODO: change verifyChoice to say where the error is coming from.
             if (ci) {
