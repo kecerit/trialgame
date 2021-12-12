@@ -1022,6 +1022,10 @@
         if (!choices.length) {
             throw new Error('ChoiceTable.setChoices: choices array is empty');
         }
+
+        // Check and drop previous "other" choices.
+        var indexOther = choices.indexOf(this.getText('other'));
+        if (this.other && indexOther >= 0) choices.splice(indexOther,1);
         this.choices = choices;
         len = choices.length;
 
@@ -1030,8 +1034,8 @@
         if (this.shuffleChoices) this.order = J.shuffle(this.order);
 
         if (this.other) {
-          this.choices[len] = this.getText('other');
-          this.order[len] = len
+            this.choices[len] = this.getText('other');
+            this.order[len] = len
         }
 
         // Build the table and choices at once (faster).
